@@ -33,7 +33,7 @@ def spectral_response(func):
     return wrapper
 
 
-def spatial_filter(func):
+def return_equal_xarray(func):
     """
     Transforms filter func for numpy arrays to return dataarrays of same size.
     Note output size must match input size. First arg must be input array

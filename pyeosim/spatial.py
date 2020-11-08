@@ -1,7 +1,7 @@
 """
 Spatial response functions
 """
-from .decorators import spatial_response, spatial_filter
+from .decorators import spatial_response, return_equal_xarray
 from skimage import filters
 import numpy as np
 
@@ -33,7 +33,7 @@ class GaussianIsotropic(object):
         self.psf_fwhm = psf_fwhm
         self.ground_sample_distance = ground_sample_distance
 
-    def apply(self, signal):
+    def transform(self, signal):
         """
         Apply downsampling transform assuming a gaussian PSF and known PSF full
         width at half maximum.
@@ -75,7 +75,7 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
     downsampled_array : xarray.DataArray
         2D xarray raster array at new resolution
     """
-    @spatial_filter
+    @return_equal_xarray
     def apply_gauss_filter(x):
         return filters.gaussian(x, sigma=sigma, multichannel=True)
     # interpolate out NAs in each spatial axis
