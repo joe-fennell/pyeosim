@@ -2,7 +2,20 @@
 Checking decorators for different function types
 """
 import functools
-import xarray
+
+
+def reflectance_lookup(func):
+    """
+    Checks first argument has ['wavelength', 'rho'] dims
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # Xarray checks
+        signal = args[0]
+        if ('wavelength' in signal.dims) & ('rho' in signal.dims):
+            return func(*args, **kwargs)
+        raise AttributeError('First argument does not have spatial coord')
+    return wrapper
 
 
 def spatial_response(func):
@@ -14,7 +27,7 @@ def spatial_response(func):
     def wrapper(*args, **kwargs):
         # Xarray checks
         signal = args[0]
-        if ('x' in signal.coords) & ('y' in signal.coords):
+        if ('x' in signal.dims) & ('y' in signal.dims):
             return func(*args, **kwargs)
         raise AttributeError('First argument does not have spatial coord')
     return wrapper
@@ -27,7 +40,7 @@ def spectral_response(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         signal = args[0]
-        if 'wavelength' in signal.coords:
+        if 'wavelength' in signal.dims:
             return func(*args, **kwargs)
         raise AttributeError('First argument does not have wavelength coord')
     return wrapper

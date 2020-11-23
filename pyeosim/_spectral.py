@@ -19,7 +19,7 @@ class _SRF(object):
         self.reflectance_scale_factor = reflectance_scale_factor
         self.band_names = band_names
 
-    def fit():
+    def fit(self, signal):
         """
         Method not used but retained for compatibility with SKLearn
         """
@@ -37,8 +37,7 @@ class _SRF(object):
         """
         # applies spectral response function to arrays
         def _clip(signal, range):
-            out = signal.where((signal.wavelength >= range[0])
-                               & (signal.wavelength <= range[1]), drop=True)
+            out = signal.sel(wavelength=slice(range[0], range[1]))
             if len(out) < 1:
                 raise RuntimeError('Out of range: No values between {}nm and \
                                    {}nm'.format(*range))
@@ -54,8 +53,10 @@ class _SRF(object):
             response = (signal/self.reflectance_scale_factor) * sensor
             # integrate under response spectrum
             # estimate response for a 100% reflectance signal
-            norm = sensor.integrate('wavelength')
-            out = response.integrate('wavelength')/norm
+            # norm = sensor.integrate('wavelength')
+            # out = response.integrate('wavelength')/norm
+
+            out = response.integrate('wavelength')
             out.attrs = signal.attrs
             return out
 

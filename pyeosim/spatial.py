@@ -11,7 +11,7 @@ class GaussianIsotropic(object):
     Parametric Gaussian PSF
     """
 
-    def __init__(self, psf_fwhm, ground_sample_distance):
+    def __init__(self, psf_fwhm=22.08, ground_sample_distance=10):
         """
         Apply downsampling transform assuming a gaussian PSF and known PSF full
         width at half maximum.
@@ -23,15 +23,21 @@ class GaussianIsotropic(object):
         Parameters
         ----------
 
-        psf_fwhm : float
+        psf_fwhm : float, optional
             Full width at half maximum of gaussian kernel. Sentinel 2 10m has a
             value of 22.08m
 
-        ground_sample_distance : float
+        ground_sample_distance : float, optional
             ground resolution of instrument
         """
         self.psf_fwhm = psf_fwhm
         self.ground_sample_distance = ground_sample_distance
+
+    def fit(self, signal):
+        """
+        Method not used but retained for compatibility with SKLearn
+        """
+        pass
 
     def transform(self, signal):
         """
