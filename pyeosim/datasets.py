@@ -1,5 +1,5 @@
 """
-Paths to datasets used in testing and specific supported sensors
+Datasets and data load funcs used in testing and specific supported sensors
 """
 import numpy as np
 import os

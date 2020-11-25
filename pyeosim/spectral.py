@@ -1,7 +1,8 @@
 """
 Sentinel 2 simulation tools
 """
-from ._spectral import _SRF, _load_S2_spectra
+from ._spectral import _SRF
+from .datasets import dload
 
 
 class Sentinel2A(_SRF):
@@ -12,7 +13,7 @@ class Sentinel2A(_SRF):
     """
 
     def _load_srfs(self):
-        spx = _load_S2_spectra()
+        spx = dload('SRF_SENTINEL_2')
         return spx['S2A']
 
 
@@ -22,18 +23,18 @@ class Sentinel2B(_SRF):
     """
 
     def _load_srfs(self):
-        spx = _load_S2_spectra()
+        spx = dload('SRF_SENTINEL_2')
         return spx['S2B']
 
 
-class TreeView(_SRF):
+class TreeView_1(_SRF):
     """
-    Hypothetical satellite with spatial resolution of 5m (4x Sentinel 2) and
-    spectral response of Sentinel 2 in VNIR. PSF is based on 4x Sentinel 2
+    Hypothetical satellite with spectral responses equivalent to vis-NIR
+    Sentinel 2
     """
 
     def _load_srfs(self):
-        spx = _load_S2_spectra()
+        spx = dload('SRF_SENTINEL_2')
         vals = spx['S2A']
         # drop SWIR
         vals.pop('B11')
