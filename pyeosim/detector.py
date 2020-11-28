@@ -4,6 +4,7 @@ writing new subclasses of GenericTransformer in 'sensor' submodule.
 """
 
 import numpy
+import xarray
 from ._decorators import return_equal_xarray
 
 
@@ -135,15 +136,15 @@ def add_photon_noise(photon_count):
     return photon_count.map_blocks(numpy.random.poisson)
 
 
-def photon_mean(irradiance, pixel_area, integration_time):
+def photon_mean(flux, pixel_area, integration_time):
     """
     Convert sensor irradiance (wavelength in nm, irradiance in W m-2)
     to photon count (poisson lambda coefficient).
 
     Parameters
     ----------
-    irradiance : xarray.DataArray
-        pixel irradiance with wavelength dim
+    flux : xarray.DataArray
+        pixel flux (photons/second/m2)
     pixel_area : float
         area in microns
     integration_time : float
@@ -154,8 +155,22 @@ def photon_mean(irradiance, pixel_area, integration_time):
     photo_count : xarray.DataArray
         per-pixel photon count
     """
-    flux = _irradiance_to_flux(irradiance)
     return flux * integration_time * _microns2_to_m2(pixel_area)
+
+
+def irradiance_to_flux(irradiance):
+    """
+    Convert xarray spectral object (wavelength in nm, irradiance in W m-2)
+    to photon flux using hc=1.99e-25
+
+    Parameters
+    ----------
+    ar : xarray.DataArray
+        radiance
+    """
+    hc = 1.99e-25  # J m
+    lambda_ = _nm_to_m(irradiance.wavelength)
+    return (lambda_/hc) * irradiance
 
 
 def radiance_to_irradiance(radiance, altitude):
@@ -181,22 +196,32 @@ def radiance_to_irradiance(radiance, altitude):
     return radiance * IFOV
 
 
-# Internal functions
-def _irradiance_to_flux(irradiance):
+def band_Qe(SRFs, quantum_efficiency):
     """
-    Convert xarray spectral object (wavelength in nm, irradiance in W m-2)
-    to photon flux
+    Calculates weighted mean of the quantum efficiency in
+    each spectral channel.
 
     Parameters
     ----------
-    ar : xarray.DataArray
-        radiance
+    SRFs : dict
+        Spectral Response Function dictionary
+    quantum_efficiency : xarray.DataArray
+        Q_e with wavelength coordinate
+
+    Returns
+    -------
+    Q_e : xarray.DataArray
+        Weighted mean quantum efficiency for each band
     """
-    hc = 1.99e-25  # J m
-    lambda_ = _nm_to_m(irradiance.wavelength)
-    return (lambda_/hc) * irradiance
+    bands = numpy.arange(len(SRFs))
+    QEs = []
+    for srf in SRFs.values():
+        weight = srf/srf.integrate('wavelength')
+        QEs.append(float((quantum_efficiency * weight).sum()))
+    return xarray.DataArray(QEs, [('band', bands)])
 
 
+# Internal functions
 def _nm_to_m(x):
     """
     Convert nanometer (nm) to metre (m)

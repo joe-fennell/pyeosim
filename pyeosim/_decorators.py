@@ -4,6 +4,28 @@ Checking decorators for different function types
 import functools
 
 
+def spectral_index(func):
+    """
+    Adds case handling and limits to spectral index functions
+    """
+    @functools.wraps(func)
+    def wrapper(da, **kwargs):
+        if 'band' in da.dims:
+            da = da.swap_dims({'band': 'band_name'})
+            out = func(da, case='multispectral')
+        if 'band_name' in da.dims:
+            out = func(da, case='multispectral')
+        if 'wavelength' in da.dims:
+            out = func(da, case='hyperspectral')
+        # mask the results if requested
+        if 'min_val' in kwargs:
+            out = out.where(out >= kwargs['min_val'])
+        if 'max_val' in kwargs:
+            out = out.where(out <= kwargs['max_val'])
+        return out
+    return wrapper
+
+
 def reflectance_lookup(func):
     """
     Checks first argument has ['wavelength', 'rho'] dims

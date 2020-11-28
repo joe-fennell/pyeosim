@@ -16,9 +16,9 @@ class LinearCCD(GenericTransformer):
 
     def __init__(self, integration_time=.1, pixel_area=5.3,
                  psf_fwhm=11, ground_sample_distance=5, sensor_altitude=5e5,
-                 Q_e=.6, dark_noise=25, ccd_vref=1, sense_node_gain=5,
-                 full_well=100000, adc_vref=1, adc_gain=1, bit_depth=12,
-                 store_steps=False):
+                 Q_e='CCD_QE_DD_BACK', dark_noise=25, ccd_vref=1,
+                 sense_node_gain=5, full_well=100000, adc_vref=1, adc_gain=1,
+                 bit_depth=12, store_steps=False):
         """
         Parameters
         ----------
@@ -55,14 +55,17 @@ class LinearCCD(GenericTransformer):
         """
         super().__init__()
         self.integration_time = integration_time
-        # if string assume a dataset
-        if type(Q_e) == str:
-            self.Q_e = dload(Q_e)
-        else:
-            self.Q_e = Q_e
         self.ground_sample_distance = ground_sample_distance
         self.psf_fwhm = psf_fwhm
         self.spectral_response = TreeView_1()
+        # if string assume a dataset and resample
+        if type(Q_e) == str:
+            # load dataset from file
+            # calculate weighted mean for each band
+            self.Q_e = dr.band_Qe(self.spectral_response.srfs,
+                                  dload(Q_e))
+        else:
+            self.Q_e = Q_e
         self.pixel_area = pixel_area
         self.dark_noise = dark_noise
         self.ccd_vref = ccd_vref
@@ -77,19 +80,27 @@ class LinearCCD(GenericTransformer):
 
     def __set_steps(self):
         self.steps = [
-            ('radiance to quanta', dr.photon_mean,
-             [self.pixel_area, self.integration_time]),
-            ('quanta per original pixel', dr.radiance_to_irradiance,
-             [self.sensor_altitude]),
-            ('quanta at CCD', self.spectral_response.transform, []),
-            ('quanta at resampled pixel', gaussian_isotropic,
-             [self.psf_fwhm, self.ground_sample_distance]),
-            ('photon noise', dr.add_photon_noise, []),
-            ('photon to electron', dr.photon_to_electron, [self.Q_e]),
-            ('dark current noise', dr.add_gaussian_noise, [self.dark_noise]),
+            ('irradiance per original pixel', dr.radiance_to_irradiance,
+             {'altitude': self.sensor_altitude}),
+            ('irradiance to flux', dr.irradiance_to_flux, {}),
+            ('flux at CCD', self.spectral_response.transform, {}),
+            ('flux at resampled pixel', gaussian_isotropic,
+             {'psf_fwhm': self.psf_fwhm,
+              'ground_sample_distance': self.ground_sample_distance}),
+            ('flux to quanta', dr.photon_mean,
+             {'pixel_area': self.pixel_area,
+              'integration_time': self.integration_time}),
+            ('photon noise', dr.add_photon_noise, {}),
+            ('photon to electron', dr.photon_to_electron,
+             {'Q_e': self.Q_e}),
+            ('dark current noise', dr.add_gaussian_noise,
+             {'sigma': self.dark_noise}),
             ('electron to voltage', dr.electron_to_voltage,
-             [self.ccd_vref, self.sense_node_gain, self.full_well]),
-            ('voltage to DN', dr.voltage_to_DN, [self.adc_vref,
-                                                 self.adc_gain,
-                                                 self.bit_depth])
+             {'v_ref': self.ccd_vref,
+              'sense_node_gain': self.sense_node_gain,
+              'full_well': self.full_well}),
+            ('voltage to DN', dr.voltage_to_DN,
+             {'v_ref': self.adc_vref,
+              'adc_gain': self.adc_gain,
+              'bit_depth': self.bit_depth})
         ]

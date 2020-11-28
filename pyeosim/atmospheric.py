@@ -59,7 +59,7 @@ class SixSAtmosphere(object):
         new = apply_LUT(signal, self.LUT)
         new_meta = {
             'input_signal_meta': meta,
-            'atmospheric_simulation': self.LUT.attrs
+            'atmospheric_simulation': str(self.LUT.attrs)
             }
         new.attrs = new_meta
         return new
