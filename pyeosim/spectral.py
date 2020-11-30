@@ -14,6 +14,16 @@ class Sentinel2A(_SRF):
 
     def _load_srfs(self):
         spx = dload('SRF_SENTINEL_2')
+        self.band_wavelengths = {
+            'B2': 492.,
+            'B3': 560.,
+            'B4': 664.,
+            'B5': 704.,
+            'B6': 740.,
+            'B7': 780.,
+            'B8': 832.,
+            'B8A': 864.
+        }
         return spx['S2A']
 
 
@@ -24,6 +34,16 @@ class Sentinel2B(_SRF):
 
     def _load_srfs(self):
         spx = dload('SRF_SENTINEL_2')
+        self.band_wavelengths = {
+            'B2': 492.,
+            'B3': 560.,
+            'B4': 664.,
+            'B5': 704.,
+            'B6': 740.,
+            'B7': 780.,
+            'B8': 832.,
+            'B8A': 864.
+        }
         return spx['S2B']
 
 
@@ -39,4 +59,14 @@ class TreeView_1(_SRF):
         # drop SWIR
         vals.pop('B11')
         vals.pop('B12')
+        self.band_wavelengths = {
+            'B2': 492.,
+            'B3': 560.,
+            'B4': 664.,
+            'B5': 704.,
+            'B6': 740.,
+            'B7': 780.,
+            'B8': 832.,
+            'B8A': 864.
+        }
         return vals

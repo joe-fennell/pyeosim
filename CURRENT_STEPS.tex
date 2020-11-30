@@ -1,32 +1,32 @@
-\begin{tabular}{lll}
+\begin{tabular}{llll}
 \toprule
-\bf{Stage} & \bf{Function} & \bf{Parameters} \\
+ & \bf{Stage} & \bf{Function} & \bf{Parameters} \\
 \midrule
-irradiance per original pixel & pyeosim.detector.radiance\_to\_irradiance & altitude = 5.00e+05\\
+1 & irradiance per original pixel & pyeosim.detector.radiance\_to\_irradiance & altitude = 5.00e+05\\
 \midrule
-irradiance to flux & pyeosim.detector.irradiance\_to\_flux & None\\
+2 & irradiance to flux & pyeosim.detector.irradiance\_to\_flux & None\\
 \midrule
-flux at CCD & pyeosim.spectral.TreeView\_1 & None\\
+3 & flux at CCD & pyeosim.spectral.TreeView\_1 & None\\
 \midrule
-flux at resampled pixel & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 3.00\\
- & & ground\_sample\_distance = 1.50\\
+4 & flux at resampled pixel & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 2.00\\
+ & & & ground\_sample\_distance = 1.00\\
 \midrule
-flux to quanta & pyeosim.detector.photon\_mean & pixel\_area = 3.00\\
- & & integration\_time = 0.10\\
+5 & flux to quanta & pyeosim.detector.photon\_mean & pixel\_area = 3.00\\
+ & & & integration\_time = 0.10\\
 \midrule
-photon noise & pyeosim.detector.add\_photon\_noise & None\\
+6 & photon noise & pyeosim.detector.add\_photon\_noise & None\\
 \midrule
-photon to electron & pyeosim.detector.photon\_to\_electron & Q\_e = [0.87,...]\\
+7 & photon to electron & pyeosim.detector.photon\_to\_electron & Q\_e = [0.87,...]\\
 \midrule
-dark current noise & pyeosim.detector.add\_gaussian\_noise & sigma = 10.00\\
+8 & dark current noise & pyeosim.detector.add\_gaussian\_noise & sigma = 1.20e+02\\
 \midrule
-electron to voltage & pyeosim.detector.electron\_to\_voltage & v\_ref = 5.00\\
- & & sense\_node\_gain = 5.00e-06\\
- & & full\_well = 1.00e+05\\
+9 & electron to voltage & pyeosim.detector.electron\_to\_voltage & v\_ref = 5.00\\
+ & & & sense\_node\_gain = 5.00e-06\\
+ & & & full\_well = 1.00e+05\\
 \midrule
-voltage to DN & pyeosim.detector.voltage\_to\_DN & v\_ref = 5.00\\
- & & adc\_gain = 5.00e+03\\
- & & bit\_depth = 12.00\\
+10 & voltage to DN & pyeosim.detector.voltage\_to\_DN & v\_ref = 5.00\\
+ & & & adc\_gain = 5.00e+03\\
+ & & & bit\_depth = 12.00\\
 \midrule
 \bottomrule
 \end{tabular}

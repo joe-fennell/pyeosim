@@ -13,8 +13,9 @@ class _SRF(object):
     __slots__ = 'srfs'
 
     def __init__(self, band_names=None):
-        self.srfs = self._load_srfs()
         self.band_names = band_names
+        self.band_wavelengths = []
+        self.srfs = self._load_srfs()
 
     def fit(self, signal):
         """

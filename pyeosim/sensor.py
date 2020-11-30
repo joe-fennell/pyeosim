@@ -76,9 +76,9 @@ class LinearCCD(GenericTransformer):
         self.bit_depth = bit_depth
         self.sensor_altitude = sensor_altitude
         self.store_steps = store_steps
-        self.__set_steps()
+        self._set_steps()
 
-    def __set_steps(self):
+    def _set_steps(self):
         self.steps = [
             ('irradiance per original pixel', dr.radiance_to_irradiance,
              {'altitude': self.sensor_altitude}),

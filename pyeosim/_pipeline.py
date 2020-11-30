@@ -16,6 +16,7 @@ class GenericTransformer(object):
 
     def transform(self, signal):
         meta = signal.attrs.copy()
+        self._set_steps()
         new = self._apply_steps(signal)
         name = self.__class__.__name__
         k = '{}_sensor_simulation'.format(name)
@@ -95,9 +96,9 @@ class GenericTransformer(object):
             except AttributeError:
                 return parse_func(obj)
 
-        def fmt_step(step, param_entry='None'):
-            _str = ''
-            _str += '{} & '.format(step[0])
+        def fmt_step(step, c, param_entry='None'):
+            _str = '{} &'.format(c)
+            _str += ' {} & '.format(step[0])
             _str += '{} & '.format(fmt_obj(step[1]))
             _str += '{}\\\\'.format(param_entry)
             return _str
@@ -115,32 +116,34 @@ class GenericTransformer(object):
             return '{} = '.format(name) + val
 
         def fmt_empty_step(val):
-            return ' & & ' + val + '\\\\'
+            return ' & & & ' + val + '\\\\'
 
         if os.path.exists(filename):
             os.remove(filename)
 
         # add all preamble
-        add_line('\\begin{tabular}{lll}')
+        add_line('\\begin{tabular}{llll}')
         add_line('\\toprule')
-        add_line('\\bf{Stage} & \\bf{Function} & \\bf{Parameters} \\\\')
+        add_line(' & \\bf{Stage} & \\bf{Function} & \\bf{Parameters} \\\\')
         add_line('\\midrule')
         # iterate all steps and write to a file
+        c = 1
         for s in self.steps:
             n_params = len(s[2])
             if n_params == 0:
-                add_line(fmt_step(s))
+                add_line(fmt_step(s, c))
             if n_params >= 1:
                 _pnames = list(s[2].keys())
                 _pvals = list(s[2].values())
                 _p = fmt_params(_pnames[0],
                                 _pvals[0])
-                add_line(fmt_step(s, _p))
+                add_line(fmt_step(s, c, _p))
 
             if n_params > 1:
                 for i in range(1, n_params):
                     _p = fmt_params(_pnames[i], _pvals[i])
                     add_line(fmt_empty_step(_p))
             add_line('\\midrule')
+            c += 1
         add_line('\\bottomrule')
         add_line('\\end{tabular}')
