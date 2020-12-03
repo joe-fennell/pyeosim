@@ -72,6 +72,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 DATA_PATHS = {
     'TEST_HSI': os.path.abspath(pjoin(HERE, 'data',
                                       'test_hyperspectral_vnir.nc')),
+    'TEST_HSI_LARGE': os.path.abspath(pjoin(HERE, 'data',
+                                      'test_hyperspectral_vnir_large.nc')),
     'SRF_SENTINEL_2': pjoin(HERE, 'data',
                             'srf_sentinel_2.csv'),
     'SOLAR_SPECTRUM_ASTMG173': pjoin(HERE, 'data',
@@ -80,4 +82,5 @@ DATA_PATHS = {
                             'ccd_qe_dd_back.csv'),
     'CCD_QE_STD_BACK': pjoin(HERE, 'data',
                              'ccd_qe_std_back.csv'),
+    'TEST_LUT': pjoin(HERE, 'data', 'test_6s.LUT')
     }

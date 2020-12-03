@@ -10,19 +10,22 @@ class GenericTransformer(object):
     def __init__(self):
         self.store_steps = False
         self.step_outputs = {}
+        self._fitted = False  # flag to check if fixed pattern noise generated
 
     def fit(self, signal):
+        self.set_steps()
+        self._fitted = True
         pass
 
     def transform(self, signal):
-        meta = signal.attrs.copy()
-        self._set_steps()
-        new = self._apply_steps(signal)
-        name = self.__class__.__name__
-        k = '{}_sensor_simulation'.format(name)
-        meta[k] = str(self.get_params())
-        new.attrs = meta
-        return new
+        if self._fitted:
+            return self._apply_steps(signal)
+        else:
+            raise RuntimeError('Transformer Instance not fitted')
+
+    def fit_transform(self, signal):
+        self.fit(signal)
+        return self.transform(signal)
 
     def get_steps(self):
         """
@@ -53,16 +56,23 @@ class GenericTransformer(object):
         return params
 
     def _apply_steps(self, signal):
+        # metadata copying and storag
+        meta = signal.attrs.copy()
         _signal = signal.copy()
         if self.store_steps:
             for step in self.steps:
                 _signal = _signal.pipe(step[1], **step[2]).compute()
                 self.step_outputs[step[0]] = _signal
-            return _signal
         else:
             for step in self.steps:
                 _signal = _signal.pipe(step[1], **step[2])
-            return _signal.compute()
+            _signal = _signal.compute()
+
+        name = self.__class__.__name__
+        k = '{}_sensor_simulation'.format(name)
+        meta[k] = str(self.get_params())
+        _signal.attrs = meta
+        return _signal
 
     def steps_to_latex(self, filename):
         """
