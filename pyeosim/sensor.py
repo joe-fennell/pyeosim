@@ -218,11 +218,6 @@ class TdiCMOS(GenericTransformer):
                                    self.dark_current,
                                    self.integration_time,
                                    self.dark_factor).compute()
-        # separate dark current fixed pattern noise for non-imaging region
-        self.dr_dc_FPN = DCFPN(ones,
-                               self.dark_current,
-                               self.integration_time,
-                               self.dark_factor).compute()
         # generate a photon response fixed pattern
         self.PRNU = PRNU(ones, self.prnu_factor).compute()
         # generate a column offset fixed pattern

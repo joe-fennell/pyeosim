@@ -1,0 +1,20 @@
+\begin{tabular}{llll}
+\toprule
+ & \bf{Stage} & \bf{Function} & \bf{Parameters} \\
+\midrule
+1 & irradiance per original pixel & pyeosim.\_sensor.radiance\_to\_irradiance & altitude = 5.00e+05\\
+\midrule
+2 & irradiance to flux & pyeosim.\_sensor.irradiance\_to\_flux & None\\
+\midrule
+3 & flux at CCD & pyeosim.spectral.TreeView\_1 & None\\
+\midrule
+4 & flux at resampled pixel & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 4.00\\
+ & & & ground\_sample\_distance = 2.00\\
+\midrule
+5 & flux to quanta & pyeosim.\_sensor.photon\_mean & pixel\_area = 100.00\\
+ & & & integration\_time = 1.00e-03\\
+\midrule
+6 & photon noise & pyeosim.\_sensor.add\_photon\_noise & None\\
+\midrule
+7 & photon to electron & pyeosim.\_sensor.photon\_to\_electron & Q\_e = [0.69,...]\\
+\midrule

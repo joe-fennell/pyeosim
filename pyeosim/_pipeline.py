@@ -74,6 +74,20 @@ class GenericTransformer(object):
         _signal.attrs = meta
         return _signal
 
+    def apply_step(self, signal, step_name):
+        """
+        Apply a named step to a signal array
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            signal array
+        step_name : str
+            name of step to apply
+        """
+        step = self.steps[step_name]
+        return signal.pipe(step[1], **step[2])
+
     def steps_to_latex(self, filename):
         """
         Transforms steps to a latex table.
