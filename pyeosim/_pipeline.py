@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 
 class GenericTransformer(object):
@@ -130,7 +131,7 @@ class GenericTransformer(object):
         def fmt_params(name, val):
             try:
                 val = list(val.values)
-                val = '[{:.2f},...]'.format(val[0])
+                val = '[{:.2f},...]'.format(np.ravel(val)[0])
             except AttributeError:
                 if type(val) != str:
                     if (val > 100) | (val < .01):

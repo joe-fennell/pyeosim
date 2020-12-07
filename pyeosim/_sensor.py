@@ -30,8 +30,8 @@ def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):
     """
     max_DN = numpy.int(2**bit_depth - 1)
     DN = (adc_gain * (v_ref - voltage)).round()
-    DN = DN.where(DN <= max_DN, DN)
-    return DN.where(DN > 0, 0)
+    DN = DN.round().where(DN <= max_DN, max_DN)
+    return DN.round().where(DN > 0, 0)
 
 
 def electron_to_voltage(electron_count, v_ref, sense_node_gain,
@@ -91,9 +91,11 @@ def add_ktc_noise(voltage, temperature, sense_node_capacitance):
     """
     kb = 1.3806e-23  # boltzmann constant
     sigma = numpy.sqrt((kb * temperature) / sense_node_capacitance)
-    return voltage + (numpy.random.lognormal(0,
-                                             sigma**2,
-                                             size=voltage.shape) - 1)
+    # log normal with Ln(mean) = 0
+    _ln = numpy.random.lognormal(0, sigma**2, size=voltage.shape)
+    # subtract off the actual mean to generate LnN(0, sig)
+    _ln -= _ln.mean()
+    return voltage + _ln
 
 
 def add_column_offset(voltage, offset):
@@ -150,7 +152,8 @@ def add_dark_noise(electrons, dark_current, integration_time, dcfpn):
         dark current fixed pattern distribution
     """
     I_dc = dark_current * integration_time
-    I_shot = numpy.random.poisson(I_dc, size=electrons.shape)
+    I_shot = electrons.copy()
+    I_shot.values = numpy.random.poisson(I_dc, size=electrons.shape)
     I_dark = I_shot + I_shot * dcfpn
     return electrons + I_dark
 
@@ -253,7 +256,6 @@ def photon_to_electron(photon_count, Q_e):
     return (photon_count * Q_e).round()
 
 
-@return_equal_xarray
 def add_photon_noise(photon_count):
     """
     Sample a poisson distribution using input values as mean
@@ -268,7 +270,11 @@ def add_photon_noise(photon_count):
     photon_estimate : xarray.DataArray
         photon count instance
     """
-    return photon_count.map_blocks(numpy.random.poisson)
+    @return_equal_xarray
+    def poisson_rv(ar):
+        return numpy.random.poisson(ar)
+
+    return photon_count.map_blocks(poisson_rv)
 
 
 def photon_mean(flux, pixel_area, integration_time):

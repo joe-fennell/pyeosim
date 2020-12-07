@@ -21,11 +21,11 @@ def generate_fp_image(zero_signal, sensor):
         xarray of same shape as input
     """
     im = sensor.transform(xarray.concat([zero_signal] * 12, dim='repeat'))
-    return im.mean('repeat') - im.mean(['repeat', 'x', 'y'])
+    return (im.mean('repeat') - im.mean(['repeat', 'x', 'y'])).round()
 
 
-def subtract_dark_noise(signal, image_sensor, dark_sensor,
-                        fpn_image, fpn_dark):
+def noise_corrected_signal(signal, image_sensor, dark_sensor,
+                           fpn_image, fpn_dark):
     """
     Generates a sensor signal and a dark signal and subtracts one from the
     other
@@ -49,8 +49,46 @@ def subtract_dark_noise(signal, image_sensor, dark_sensor,
         return a noise corrected image
     """
     # generate dark level and image instance
-    dark_noise_level = dark_sensor.transform(xarray.ones_like(signal))
+    dark_noise_level = dark_sensor.transform(xarray.zeros_like(signal))
     image = image_sensor.transform(signal)
     # calculate mean dark noise level DN
     dark_noise_level = (dark_noise_level - fpn_dark).mean(['x', 'y'])
-    return image - fpn_image - dark_noise_level
+    return image - (fpn_image - dark_noise_level)
+
+
+def noise_corrected_reflectance(signal, reference_signal, image_sensor,
+                                dark_sensor, fpn_image, fpn_dark):
+    """
+    Generates a sensor signal and a dark signal and subtracts one from the
+    other
+
+    Parameters
+    ----------
+    signal : xarray.DataArray
+        reflectance signal
+    reference_signal : xarray.DataArray
+        100% reflectance reference signal
+    image_sensor : pyeosim.sensor.TdiCMOS
+        fitted sensor instance for imaging region
+    dark_sensor : pyeosim.sensor.TdiCMOS
+        fitted sensor instance for non-imaging region
+    fpn_image : xarray.DataArray
+        fixed pattern noise array for imaging region
+    fpn_dark : xarray.DataArray
+        fixed pattern noise array for non-imaging region
+
+    Returns
+    -------
+    noise_corrected_image : xarray.DataArray
+        return a noise corrected image
+    """
+    # generate dark level and image instance for reference signal
+    dark_noise_level = dark_sensor.transform(
+        xarray.zeros_like(reference_signal))
+    ref_image = image_sensor.transform(reference_signal)
+    # calculate mean dark noise level DN
+    dark_noise_level = (dark_noise_level - fpn_dark).mean(['x', 'y'])
+    # generate reference image
+    ref_image = ref_image - (fpn_image - dark_noise_level)
+    # divide signal by reference to give reflectance
+    return signal.astype(float)/ref_image.astype(float)
