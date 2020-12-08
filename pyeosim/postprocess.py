@@ -4,9 +4,7 @@ Image post processing pipeline
 
 from ._pipeline import GenericTransformer
 from ._postprocess import *
-from .sensor import TdiCMOS
 from copy import deepcopy
-import xarray
 
 
 class CmosReflectance(GenericTransformer):
@@ -39,12 +37,9 @@ class CmosReflectance(GenericTransformer):
         self.dark_cmos_sensor.column_offset_FPN =\
             self.cmos_sensor.column_offset_FPN
         self.dark_cmos_sensor.set_steps()
-        # generate a fpn and dark fpn reference
-        self.fpn_image = generate_fp_image(xarray.zeros_like(signal),
-                                           self.cmos_sensor)
-        # generate a fpn and dark fpn reference
-        self.fpn_dark = generate_fp_image(xarray.zeros_like(signal),
-                                          self.dark_cmos_sensor)
+        # generate a flat field image with 50% magnitude of full signal
+        self.ff_frame = generate_ff_image(self.reference_signal * .8,
+                                          self.cmos_sensor)
         self.set_steps()
         self._fitted = True
 
@@ -53,13 +48,10 @@ class CmosReflectance(GenericTransformer):
             ('Noise-corrected image', noise_corrected_signal,
              {'image_sensor': self.cmos_sensor,
               'dark_sensor': self.dark_cmos_sensor,
-              'fpn_image': self.fpn_image,
-              'fpn_dark': self.fpn_dark}),
+              'ff_frame': self.ff_frame}),
             ('Ref_max reflectance image', noise_corrected_reflectance,
              {'reference_signal': self.reference_signal,
               'image_sensor': self.cmos_sensor,
               'dark_sensor': self.dark_cmos_sensor,
-              'fpn_image': self.fpn_image,
-              'fpn_dark': self.fpn_dark})
-
+              'ff_frame': self.ff_frame})
         ]

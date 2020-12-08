@@ -49,7 +49,7 @@ class SimpleCCD(GenericTransformer):
         adc_vref : float
             reference voltage of ADC in volts
         adc_gain : float
-            ADC gain in volts/DN
+            ADC gain in DN/V
         bit_depth : int
             bit depth of the ADC
         store_steps : bool
@@ -118,7 +118,7 @@ class TdiCMOS(GenericTransformer):
                  psf_fwhm=4, ground_sample_distance=2, sensor_altitude=5e5,
                  Q_e='CCD_QE_DD_BACK', prnu_factor=.01, dark_current=570,
                  dark_factor=.01, offset_factor=.01, ccd_vref=5,
-                 sense_node_gain=5, sense_node_capacitance=60e-15,
+                 sense_node_gain=5,
                  temperature=293, source_follower_gain=1, full_well=30000,
                  adc_vref=5, adc_gain=1, bit_depth=12, store_steps=False):
         """
@@ -147,8 +147,6 @@ class TdiCMOS(GenericTransformer):
             reference voltage of voltage sensor in volts
         sense_node_gain : float
             gain of sense node in microvolts/electron
-        sense_node_capacitance : float
-            capacitance across sense node in F
         temperature : float
             temperature of amplifier in kelvin
         source_follower_gain : float
@@ -158,7 +156,7 @@ class TdiCMOS(GenericTransformer):
         adc_vref : float
             reference voltage of ADC in volts
         adc_gain : float
-            ADC gain in volts/DN
+            ADC gain in DN/V
         bit_depth : int
             bit depth of the ADC
         store_steps : bool
@@ -184,7 +182,6 @@ class TdiCMOS(GenericTransformer):
         self.offset_factor = offset_factor
         self.ccd_vref = ccd_vref
         self.sense_node_gain = sense_node_gain * 1e-6  # uV to V
-        self.sense_node_capacitance = sense_node_capacitance
         self.temperature = temperature
         self.source_follower_gain = source_follower_gain
         self.full_well = full_well
@@ -251,8 +248,7 @@ class TdiCMOS(GenericTransformer):
              {'v_ref': self.ccd_vref,
               'sense_node_gain': self.sense_node_gain,
               'full_well': self.full_well,
-              'temperature': self.temperature,
-              'sense_node_capacitance': self.sense_node_capacitance}),
+              'temperature': self.temperature}),
             ('column offset noise', add_column_offset,
              {'offset': self.column_offset_FPN}),
             ('voltage to DN', voltage_to_DN,

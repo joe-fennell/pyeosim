@@ -29,8 +29,8 @@ def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):
         simulated digital number values
     """
     max_DN = numpy.int(2**bit_depth - 1)
-    DN = (adc_gain * (v_ref - voltage)).round()
-    DN = DN.round().where(DN <= max_DN, max_DN)
+    DN = (adc_gain * (v_ref - voltage))
+    DN = DN.round().where(DN < max_DN, max_DN)
     return DN.round().where(DN > 0, 0)
 
 
@@ -56,19 +56,22 @@ def electron_to_voltage(electron_count, v_ref, sense_node_gain,
         voltage of sensor
     """
     # truncate at full well
-    e = electron_count.round().where(electron_count <= full_well, full_well)
-    return v_ref - e * sense_node_gain
+    e = electron_count.round().where(electron_count < full_well, full_well)
+    return v_ref - (e * sense_node_gain)
 
 
 def electron_to_voltage_ktc(electron_count, v_ref, sense_node_gain,
-                            full_well, temperature, sense_node_capacitance):
+                            full_well, temperature):
     """
     Converts charge to voltage with ktc reset noise (lognormal)
     """
+    # calculate capacitance
+    q = 1.602176487e-19  # charge of electron q
+    sense_node_capacitance = q / sense_node_gain
     v_ref = add_ktc_noise(v_ref * xarray.ones_like(electron_count),
                           temperature, sense_node_capacitance)
-    e = electron_count.round().where(electron_count <= full_well, full_well)
-    return v_ref - e * sense_node_gain
+    e = electron_count.where(electron_count < full_well, full_well)
+    return v_ref - (e * sense_node_gain)
 
 
 def add_ktc_noise(voltage, temperature, sense_node_capacitance):
@@ -155,7 +158,7 @@ def add_dark_noise(electrons, dark_current, integration_time, dcfpn):
     I_shot = electrons.copy()
     I_shot.values = numpy.random.poisson(I_dc, size=electrons.shape)
     I_dark = I_shot + I_shot * dcfpn
-    return electrons + I_dark
+    return (electrons + I_dark).round()
 
 
 def DCFPN(ones, dark_current, integration_time, dark_factor):
@@ -183,7 +186,8 @@ def DCFPN(ones, dark_current, integration_time, dark_factor):
     """
 
     sigma = integration_time * dark_current * dark_factor
-    return ones * numpy.random.lognormal(0, sigma**2, size=ones.shape)
+    fpn = ones * numpy.random.lognormal(sigma**2, size=ones.shape)
+    return fpn - fpn.mean()
 
 
 def add_prnu(electrons, prnu):

@@ -63,7 +63,7 @@ class GenericTransformer(object):
         if self.store_steps:
             for step in self.steps:
                 _signal = _signal.pipe(step[1], **step[2]).compute()
-                self.step_outputs[step[0]] = _signal
+                self.step_outputs[step[0]] = _signal.copy()
         else:
             for step in self.steps:
                 _signal = _signal.pipe(step[1], **step[2])
