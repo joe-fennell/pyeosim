@@ -4,27 +4,62 @@ import numpy as np
 
 class GenericTransformer(object):
     """
-    A generic base class. Child subclasses should implement a 'set_steps'
-    method that assigns a list of tuples to the 'named_steps' attribute.
+    A generic base class. Child subclasses should implement a '_set_steps'
+    method that assigns a list of tuples to the 'steps' attribute.
     """
 
     def __init__(self):
         self.store_steps = False
         self.step_outputs = {}
+        self.steps = []
         self._fitted = False  # flag to check if fixed pattern noise generated
 
     def fit(self, signal):
-        self.set_steps()
+        """
+        Sets all steps in the model
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
+        """
+        self._set_steps()
         self._fitted = True
-        pass
 
     def transform(self, signal):
+        """
+        Applies all steps specificied in the 'steps' list
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
+
+        Returns
+        -------
+        new_signal : xarray.DataArray
+            transformed values
+        """
         if self._fitted:
             return self._apply_steps(signal)
         else:
             raise RuntimeError('Transformer Instance not fitted')
 
     def fit_transform(self, signal):
+        """
+        Calls 'fit' method then applies all steps specificied in the 'steps'
+        list
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
+
+        Returns
+        -------
+        new_signal : xarray.DataArray
+            transformed values
+        """
         self.fit(signal)
         return self.transform(signal)
 
@@ -37,6 +72,16 @@ class GenericTransformer(object):
     def get_params(self, numeric_only=False):
         """
         Returns the configuration params for the transfomer
+
+        Parameters
+        ----------
+        numeric_only : bool, optional
+            flag returns only numeric type parameters
+
+        Returns
+        -------
+        parameters : dict
+            dictionary of parameter values keyed by name
         """
         def only_numeric(params):
             def isnumeric(x):
@@ -56,6 +101,20 @@ class GenericTransformer(object):
             return only_numeric(params)
         return params
 
+    def apply_step(self, signal, step_name):
+        """
+        Apply a named step to a signal array
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            signal array
+        step_name : str
+            name of step to apply
+        """
+        step = self.steps[step_name]
+        return signal.pipe(step[1], **step[2])
+
     def _apply_steps(self, signal):
         # metadata copying and storag
         meta = signal.attrs.copy()
@@ -74,20 +133,6 @@ class GenericTransformer(object):
         meta[k] = str(self.get_params())
         _signal.attrs = meta
         return _signal
-
-    def apply_step(self, signal, step_name):
-        """
-        Apply a named step to a signal array
-
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            signal array
-        step_name : str
-            name of step to apply
-        """
-        step = self.steps[step_name]
-        return signal.pipe(step[1], **step[2])
 
     def steps_to_latex(self, filename):
         """

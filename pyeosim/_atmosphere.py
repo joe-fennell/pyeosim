@@ -13,9 +13,17 @@ class LUT(object):
         """
         Parameters
         ----------
-        LUT_path : str
+        LUT_object : str, optional
+            An xarray lookup table which must have at least
+            wavelength and rho
+        LUT_path : str, optional
             A path to an xarray lookup table which must have at least
             wavelength and rho
+        parameter_subsets : str, optional
+            A dictionary specifying subsets of the xarray object. Refer to
+            xarray docs for more information
+        chunks : int or list, optional
+            chunking parameter passed to xarray.open_dataset
         """
 
         @reflectance_lookup

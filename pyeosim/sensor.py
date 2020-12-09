@@ -12,14 +12,14 @@ import numpy
 import xarray
 
 
-class SimpleCCD(GenericTransformer):
+class SimpleSensor(GenericTransformer):
     """
     A generic CCD
     """
 
     def __init__(self, integration_time=.1, pixel_area=5.3,
                  psf_fwhm=11, ground_sample_distance=5, sensor_altitude=5e5,
-                 Q_e='CCD_QE_DD_BACK', dark_noise=25, ccd_vref=1,
+                 Q_e=.6, dark_noise=25, ccd_vref=1,
                  sense_node_gain=5, full_well=100000, adc_vref=1, adc_gain=1,
                  bit_depth=12, store_steps=False):
         """
@@ -78,10 +78,9 @@ class SimpleCCD(GenericTransformer):
         self.bit_depth = bit_depth
         self.sensor_altitude = sensor_altitude
         self.store_steps = store_steps
-        self.set_steps()
         self.fit(None)
 
-    def set_steps(self):
+    def _set_steps(self):
         self.steps = [
             ('irradiance per original pixel', radiance_to_irradiance,
              {'altitude': self.sensor_altitude}),
@@ -109,18 +108,19 @@ class SimpleCCD(GenericTransformer):
         ]
 
 
-class TdiCMOS(GenericTransformer):
+class TeledyneCMOS(GenericTransformer):
     """
-    TDI CMOS sensor. Requires fitting first to generate the dark offset
+    Teledyne CMOS sensor assuming a monolithic multispectral architecture.
+
     """
 
     def __init__(self, integration_time=.1, pixel_area=10**2,
                  psf_fwhm=4, ground_sample_distance=2, sensor_altitude=5e5,
-                 Q_e='CCD_QE_DD_BACK', prnu_factor=.01, dark_current=570,
+                 Q_e=.6, prnu_factor=.01, dark_current=570,
                  dark_factor=.01, offset_factor=.01, ccd_vref=5,
-                 sense_node_gain=5,
-                 temperature=293, source_follower_gain=1, full_well=30000,
-                 adc_vref=5, adc_gain=1, bit_depth=12, store_steps=False):
+                 sense_node_gain=5, temperature=293, source_follower_gain=1,
+                 full_well=30000, adc_vref=5, adc_gain=1, bit_depth=12,
+                 store_steps=False):
         """
         Parameters
         ----------
@@ -193,8 +193,13 @@ class TdiCMOS(GenericTransformer):
 
     def fit(self, signal):
         """
-        Generates the Fixed-Pattern Noise sources. Needs to be re-run if
-        parameter values changed.
+        Sets all steps in the model. Generates fixed pattern noise that is
+        preserved until transform is re-run.
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
         """
         # ones array of same shape as final signal
 
@@ -220,10 +225,11 @@ class TdiCMOS(GenericTransformer):
         # generate a column offset fixed pattern
         self.column_offset_FPN = ones.isel(y=0, band=0) * numpy.random.normal(
             0, self.offset_factor**2, size=ones.isel(y=0, band=0).shape)
-        self.set_steps()
+        self._set_steps()
         self._fitted = True
 
-    def set_steps(self):
+    def _set_steps(self):
+        # called via fit
         self.steps = [
             ('irradiance per original pixel', radiance_to_irradiance,
              {'altitude': self.sensor_altitude}),
