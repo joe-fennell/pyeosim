@@ -90,6 +90,81 @@ class _SRF(object):
         return _concatenate_results(responses)
 
 
+def bands_from_step_func(step_funcs, min_wavelength=400, max_wavelength=1000):
+    """
+    Generates a dictionary of spectral response functions using the mean
+    value and bandwidth.
+
+    Parameters
+    ----------
+    step_funcs : dict
+        dictionary in format {'band_name': (central_wavelength, band_width,
+        transmission)}
+    min_wavelength : float
+        minimum wavelength to evaluate in nm
+    max_wavelength : float
+        maximum wavelength to evaluate in nm
+
+    Returns
+    -------
+    srfs : dict
+        spectral response funcs in format {'band_name': xarray.DataArray}
+    """
+    out = {}
+    new_wlen = np.arange(400, 1000)
+    for name, params in step_funcs.items():
+        try:
+            trans = params[2]
+        except IndexError:
+            trans = 1
+        min = params[0] - (params[1] / 2)
+        max = params[0] + (params[1] / 2)
+        new_r = np.zeros(len(new_wlen))
+        # set all values >= min to 1
+        new_r[new_wlen >= min] = trans
+        # set all values > max back to 0
+        new_r[new_wlen > max] = 0
+        # make xarray and append to out dict
+        out[name] = xarray.DataArray(new_r,
+                                     coords=[('wavelength', new_wlen)])
+    return out
+
+
+def band_QE(SRFs, quantum_efficiency):
+    """
+    Calculates weighted mean of the quantum efficiency in
+    each spectral channel.
+
+    Parameters
+    ----------
+    SRFs : dict
+        Spectral Response Function dictionary
+    quantum_efficiency : xarray.DataArray, list
+        Q_E with wavelength coordinate or a list of Q_Es per band
+
+    Returns
+    -------
+    Q_E : xarray.DataArray
+        Weighted mean quantum efficiency for each band
+    """
+    # numerical index for each band
+    bands = np.arange(len(SRFs))
+    QEs = []
+    # if QE is supplied as a list per band:
+    if type(quantum_efficiency) == list:
+        if len(quantum_efficiency) == len(bands):
+            QEs = quantum_efficiency
+        else:
+            raise ValueError('Quantum efficiency list length must equal\
+                             number of bands')
+    # if QE is given as a f(lambda) spectrum
+    else:
+        for srf in SRFs.values():
+            weight = srf/srf.integrate('wavelength')
+            QEs.append(float((quantum_efficiency * weight).sum()))
+    return xarray.DataArray(QEs, [('band', bands)])
+
+
 def _min_max(resp, tolerance=.05):
     # max of spectrum
     max_ = (resp.wavelength[resp > tolerance]).max()

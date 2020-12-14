@@ -1,7 +1,7 @@
 """
 Sentinel 2 simulation tools
 """
-from ._spectral import _SRF
+from ._spectral import _SRF, bands_from_step_func, band_QE
 from .datasets import dload
 
 
@@ -70,3 +70,25 @@ class TreeView_1(_SRF):
             'B8A': 864.
         }
         return vals
+
+
+class TreeView_2(_SRF):
+    """
+    Version 2 based on MRD specifications
+    """
+
+    def _load_srfs(self):
+        band_defs = {
+            'Clouds': (445, 20),
+            'Carotenoids': (490, 40),
+            'PRI_1': (531, 10),
+            'PRI_2': (560, 20),
+            'Chlorophyll_1': (620, 20),
+            'Chlorophyll_2': (665, 30),
+            'RedEdge_1': (700, 15),
+            'RedEdge_2': (740, 15),
+            'RedEdge_3': (780, 15),
+            'NIR': (865, 30)
+        }
+        self.band_wavelengths = {k: v[0] for (k, v) in band_defs.items()}
+        return bands_from_step_func(band_defs)
