@@ -27,6 +27,9 @@ def dload(name):
     if name in ['SRF_SENTINEL_2']:
         return _load_S2_spectra(DATA_PATHS[name])
 
+    if name in ['SRF_SUPERDOVE']:
+        return _load_superdove(DATA_PATHS[name])
+
     return _load_srf(DATA_PATHS[name])
 
 
@@ -67,6 +70,21 @@ def _load_srf(fpath):
     return ar
 
 
+def _load_superdove(fpath):
+    df = pandas.read_csv(fpath)
+    out = {}
+    for i in range(0,16,2):
+        dat = df.iloc[1:,i:i+2].astype(float)
+        name = df.iloc[:,i].name
+        dat = dat.drop_duplicates(name)
+
+        new = xarray.DataArray(dat.iloc[:,1].values,
+                               coords=[('wavelength', dat.iloc[:,0].values)])
+        out[name] = new.dropna(
+            'wavelength').interp(wavelength=np.arange(400,1000))
+    return out
+
+
 # paths for all data resources installed alongside
 HERE = os.path.abspath(os.path.dirname(__file__))
 DATA_PATHS = {
@@ -82,5 +100,7 @@ DATA_PATHS = {
                             'ccd_qe_dd_back.csv'),
     'CCD_QE_STD_BACK': pjoin(HERE, 'data',
                              'ccd_qe_std_back.csv'),
-    'TEST_LUT': pjoin(HERE, 'data', 'test_6s.LUT')
+    'TEST_LUT': pjoin(HERE, 'data', 'test_6s.LUT'),
+    'TDI_QE_BACK': pjoin(HERE, 'data', 'teledyne_cmos_qe_back.csv'),
+    'SRF_SUPERDOVE': pjoin(HERE, 'data', 'srf_superdove.csv')
     }

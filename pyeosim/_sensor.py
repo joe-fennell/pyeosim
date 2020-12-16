@@ -157,6 +157,33 @@ def apply_source_follower_gain(voltage, source_follower_gain):
     return voltage * source_follower_gain
 
 
+def CONU(ones, offset_factor):
+    """
+    Generates column offset non uniformity array
+
+    Parameters
+    ----------
+    ones : xarray.DataArray
+        ones of same shape as image
+    offset_factor : float
+        column offset factor
+
+    Returns
+    -------
+    CONU : xarray.DataArray
+        Column offset non uniformity array with zero mean
+    """
+    fpn = ones.isel(band=0) * numpy.random.normal(0, offset_factor**2,
+                                                  size=ones.isel(band=0).shape)
+    # drop band and band_name coords if exist
+    for var in ['band', 'band_name']:
+        try:
+            fpn = fpn.drop_vars(var)
+        except ValueError:
+            pass
+    return fpn
+
+
 def DSNU(ones, dark_current, integration_time, dark_factor):
     """
     Calculates the dark signal non-uniformity array.
@@ -246,18 +273,18 @@ def electron_to_voltage_ktc(electron_count, v_ref, sense_node_gain,
     return v_ref - (e * sense_node_gain)
 
 
-def irradiance_to_flux(irradiance):
+def energy_to_quantity(energy):
     """
-    Convert irradiance in W m-2 to photon flux density
+    Convert energy properties to quanta
 
     Parameters
     ----------
     ar : xarray.DataArray
-        radiance in W m-2
+        energy in J
     """
     hc = 1.98644586e-25  # J m
-    lambda_ = _nm_to_m(irradiance.wavelength)
-    return (lambda_/hc) * irradiance
+    lambda_ = _nm_to_m(energy.wavelength)
+    return (lambda_/hc) * energy
 
 
 def photon_mean(flux, pixel_area, integration_time):

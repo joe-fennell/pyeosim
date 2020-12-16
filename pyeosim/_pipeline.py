@@ -175,14 +175,21 @@ class GenericTransformer(object):
 
         def fmt_params(name, val):
             try:
+                # array-like
                 val = list(val.values)
-                val = '[{:.2f},...]'.format(np.ravel(val)[0])
+                val = '[{:.2f}, ...]'.format(np.ravel(val)[0])
             except AttributeError:
-                if type(val) != str:
+                # float, int or numeric string
+                try:
+                    val = float(val)
                     if (val > 100) | (val < .01):
                         val = '{:.2e}'.format(val)
                     else:
                         val = '{:.2f}'.format(val)
+                # finally, just replace with NA
+                except:
+                    val = 'N/A'
+
             return '{} = '.format(name) + val
 
         def fmt_empty_step(val):

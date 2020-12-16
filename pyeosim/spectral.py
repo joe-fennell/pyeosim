@@ -24,6 +24,7 @@ class Sentinel2A(_SRF):
             'B8': 832.,
             'B8A': 864.
         }
+        self.band_names = list(self.band_wavelengths.keys())
         return spx['S2A']
 
 
@@ -44,10 +45,11 @@ class Sentinel2B(_SRF):
             'B8': 832.,
             'B8A': 864.
         }
+        self.band_names = list(self.band_wavelengths.keys())
         return spx['S2B']
 
 
-class TreeView_1(_SRF):
+class Sentinel2VNIR(_SRF):
     """
     Hypothetical satellite with spectral responses equivalent to vis-NIR
     Sentinel 2
@@ -69,10 +71,31 @@ class TreeView_1(_SRF):
             'B8': 832.,
             'B8A': 864.
         }
+        self.band_names = list(self.band_wavelengths.keys())
         return vals
 
 
-class TreeView_2(_SRF):
+class SuperDove(_SRF):
+    """
+    Super Dove estimated spectral response digitised from published plots
+    """
+
+    def _load_srfs(self):
+        vals = dload('SRF_SUPERDOVE')
+        self.band_wavelengths = {
+            'CoastalBlue': 443.,
+            'Blue': 490.,
+            'Green_1': 531.,
+            'Green_2': 565.,
+            'Yellow': 611.,
+            'Red': 666.,
+            'RedEdge': 705.,
+            'NIR': 865.
+        }
+        self.band_names = list(self.band_wavelengths.keys())
+        return vals
+
+class TreeView_1(_SRF):
     """
     Version 2 based on MRD specifications
     """
@@ -91,4 +114,5 @@ class TreeView_2(_SRF):
             'NIR': (865, 30)
         }
         self.band_wavelengths = {k: v[0] for (k, v) in band_defs.items()}
+        self.band_names = list(self.band_wavelengths.keys())
         return bands_from_step_func(band_defs)

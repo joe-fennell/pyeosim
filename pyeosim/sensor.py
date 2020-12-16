@@ -5,7 +5,7 @@ Classes for detector operations
 from ._sensor import *  # sensor functions stored separately
 from .datasets import dload
 from .spatial import gaussian_isotropic
-from .spectral import TreeView_2, band_QE
+from .spectral import TreeView_1, band_QE, Sentinel2VNIR
 from ._pipeline import GenericTransformer
 
 import numpy
@@ -60,7 +60,7 @@ class SimpleSensor(GenericTransformer):
         self.integration_time = integration_time
         self.ground_sample_distance = ground_sample_distance
         self.psf_fwhm = psf_fwhm
-        self.spectral_response = TreeView_1()
+        self.spectral_response = Sentinel2VNIR()
         # if string assume a named dataset so load and resample
         if type(Q_E) == str:
             # load dataset from file
@@ -85,7 +85,7 @@ class SimpleSensor(GenericTransformer):
 
     def _set_steps(self):
         self.steps = [
-            ('irradiance per original pixel', radiance_to_irradiance,
+            ('irradiance per original pixel', energy_to_quantity,
              {'altitude': self.sensor_altitude}),
             ('irradiance to flux', irradiance_to_flux, {}),
             ('flux at CCD', self.spectral_response.transform, {}),
@@ -113,45 +113,58 @@ class SimpleSensor(GenericTransformer):
 
 class TeledyneCMOS(GenericTransformer):
     """
-    Teledyne CMOS sensor assuming a monolithic multispectral architecture.
+    Teledyne CMOS sensor assuming a single multispectral array and perfect
+    optics.
 
     """
-
-    def __init__(self, sensor_ground_speed=7000, TDI_rows=32, pixel_area=10**2,
-                 pix_per_row=8000, lens_diameter=.1,
-                 psf_fwhm=4, ground_sample_distance=2, sensor_altitude=5e5,
-                 Q_E=[.83, .87, .88, .89, .89, .9, .88, .83, .75, .51],
+    def __init__(self, sensor_altitude=5e5, sensor_ground_speed=7000,
+                 ground_sample_distance=2, lens_diameter=.1, psf_fwhm=4,
+                 TDI_rows=32, pix_per_row=8000, sensor_width=82.2,
+                 pixel_area=10**2, spectral_response=None,
+                 quantum_efficiency='TDI_QE_BACK', full_well=3e4,
                  prnu_factor=.01, dark_current=570, dark_factor=.01,
-                 offset_factor=.01, ccd_vref=5, sense_node_gain=5,
-                 temperature=293, source_follower_gain=1,
-                 full_well=30000, adc_vref=5, adc_gain=1, bit_depth=12,
-                 store_steps=False):
+                 offset_factor=.001, ccd_vref=3.1, sense_node_gain=5,
+                 temperature=293, source_follower_gain=1, adc_vref=3.1,
+                 adc_gain=10000, bit_depth=12, store_steps=False):
+
         """
         Parameters
         ----------
+        sensor_altitude : float
+            altitude above source in metres
         sensor_ground_speed : float
             relative ground speed of sensor in m/s
-        TDI_rows : int
-            number of rows integrated over per channel
-        pixel_area : float
-            per pixel light-absorbing area in micron2
-        pix_per_row : int
-            number of pixels per row
+        ground_sample_distance : float
+            Ground sampling distance of sensor
         lens_diameter : float
             diameter of lens in metres
         psf_fwhm : float
             Point Spread Function Full-Width at Half Maximum
             in ground units (metres)
-        ground_sample_distance : float
-            Ground sampling distance of sensor
-        sensor_altitude : float
-            altitude above source in metres
-        Q_E : float
-            Quantum efficiency of sensor
+        TDI_rows : int
+            number of rows integrated over per channel
+        pix_per_row : int
+            number of pixels per row
+        sensor_width : float
+            width of sensor imaging area in mm
+        pixel_area : float
+            per pixel light-absorbing area in micron2
+        spectral_response : object, None
+            object with transform method that simulates the spectral response
+            before the sensor. If None, default dataset is used.
+        quantum_efficiency : float, str, xarray.DataArray
+            Quantum efficiency of sensor as a float, name of internal dataset
+            to use or xarray.DataArray with a 'wavelength' dimension covering
+            the wavelength range of the spectral_response or 'bands' dimension
+            matching the bands in spectral_response
+        full_well : int
+            the maximum capacity of a pixel in electrons
+        prnu_factor : float
+            Photo response non uniformity factor
         dark_current : float
             dark current in electrons/second/pixel
         dark_factor : float
-            dark current fixed pattern noise factor
+            dark current fixed pattern noise factor (DSNU factor)
         offset_factor : float
             column offset factor
         ccd_vref : float
@@ -162,8 +175,6 @@ class TeledyneCMOS(GenericTransformer):
             temperature of amplifier in kelvin
         source_follower_gain : float
             gain of source follower amplifier in microvolts/electron
-        full_well : int
-            the maximum capacity of a pixel in electrons
         adc_vref : float
             reference voltage of ADC in volts
         adc_gain : float
@@ -175,38 +186,86 @@ class TeledyneCMOS(GenericTransformer):
             attribute
         """
         super().__init__()
+        # Satellite properties
+        self.sensor_altitude = sensor_altitude
         self.sensor_ground_speed = sensor_ground_speed
+        self.ground_sample_distance = ground_sample_distance
+        # Optic properties
+        self.lens_diameter = lens_diameter
+        self.psf_fwhm = psf_fwhm
+        # Sensor geometric properties
         self.TDI_rows = TDI_rows
         self.pix_per_row = pix_per_row
-        self.lens_diameter = lens_diameter
-        self.ground_sample_distance = ground_sample_distance
-        self.psf_fwhm = psf_fwhm
-        self.spectral_response = TreeView_2()
-        # if string assume a named dataset so load and resample
-        if type(Q_E) == str:
-            # load dataset from file
-            self.Q_E = band_QE(self.spectral_response.srfs, dload(Q_E))
-        elif type(Q_E) == list:
-            # assume an ordered list of mean values
-            self.Q_E = band_QE(self.spectral_response.srfs, Q_E)
-        else:
-            # else try to use Q_E in original form
-            self.Q_E = Q_E
-        self.prnu_factor = prnu_factor
+        self.sensor_width = sensor_width
         self.pixel_area = pixel_area
+        # Sensor bandpass properties
+        if spectral_response is None:
+            self.spectral_response = TreeView_1()
+        else:
+            self.spectral_response = spectral_response
+        # Sensor properties
+        self.quantum_efficiency = quantum_efficiency
+        self.full_well = full_well
+        self.prnu_factor = prnu_factor
+        # dark_current is calculated from this later
         self.dark_current = dark_current
         self.dark_factor = dark_factor
         self.offset_factor = offset_factor
         self.ccd_vref = ccd_vref
-        self.sense_node_gain = sense_node_gain * 1e-6  # uV to V
+        self.sense_node_gain = sense_node_gain
         self.temperature = temperature
         self.source_follower_gain = source_follower_gain
-        self.full_well = full_well
+        # ADC properties
         self.adc_vref = adc_vref
         self.adc_gain = adc_gain
         self.bit_depth = bit_depth
-        self.sensor_altitude = sensor_altitude
+        self.PRNU = None  # calculated during fit
+        self.DSNU = None  # calculated during fit
+        self.column_offset_FPN = None  # calculated during fit
+        # Simulation properties
         self.store_steps = store_steps
+        # calculate all derived properties
+        self.update_derived_params()
+
+    def update_derived_params(self):
+        """
+        Call after updating any parameter values to recalculate derived params
+        """
+        # Derived properties
+        # integration time is n/line_rate where n is TDI_rows and line_rate
+        # is sensor_ground_speed/ground_sample_distance
+        self.integration_time = self._integration_time()
+        # Retrieve quantum efficiencies
+        # if string assume a named dataset so load and resample
+        if type(self.quantum_efficiency) == str:
+            # load dataset from file
+            self.Q_E = band_QE(self.spectral_response.srfs,
+                               dload(self.quantum_efficiency))
+        elif type(self.quantum_efficiency) == list:
+            # assume an ordered list of mean values
+            self.Q_E = band_QE(self.spectral_response.srfs,
+                               self.quantum_efficiency)
+        else:
+            # else try to use Q_E in original form
+            self.Q_E = self.quantum_efficiency
+        # dark current is per pixel so needs to be multiplied by number of
+        # pixels in integration
+        self._dark_current = self.dark_current * self.TDI_rows
+        # calculate derived geometric parameters
+        self.swath_width = self.ground_sample_distance * self.pix_per_row
+        # calculate angular FoV
+        self.afov = 2 * numpy.arctan2((self.swath_width * .5),
+                                      self.sensor_altitude)
+        # assume square pixels and calculate pix_width in metres
+        self.pix_width = numpy.sqrt(self.pixel_area) / 1e6
+        # calculate focal length of ideal optic for the FoV and sensor width
+        # Note that this applies only to a rectilinear optic (thin optic or
+        # mirror) focused at infinity
+        self.focal_length = (.5 * self.sensor_width)\
+        / numpy.tan(self.afov * .5) / 1e3
+        self._sense_node_gain =  self.sense_node_gain * 1e-6  # uV to V
+        # set steps again to update values
+        self._set_steps()
 
     def fit(self, signal):
         """
@@ -230,20 +289,6 @@ class TeledyneCMOS(GenericTransformer):
             out = gaussian_isotropic(out, self.psf_fwhm,
                                      self.ground_sample_distance)
             return xarray.ones_like(out)
-        # calculate all derived values
-        # integration time is n/line_rate where n is TDI_rows and line_rate
-        # is sensor_ground_speed/ground_sample_distance
-        self.integration_time = self._integration_time()
-        # calculate derived geometric parameters
-        self.swath_width = self.ground_sample_distance * self.pix_per_row
-        # calculate angular FoV
-        self.afov = 2 * numpy.arctan2((self.swath_width / 2),
-                                      self.sensor_altitude)
-        # assume square pixels and calculate pix_width in metres
-        self.pix_width = numpy.sqrt(self.pixel_area) / 1e6
-        # calculate focal length of ideal optic
-        self.focal_length = ((self.pix_per_row * self.pix_width)
-                             / numpy.tan(self.afov / 2)) / 2
         # As this is a line scanner, only 1D fixed pattern noise is needed
         # however because each image pixel is integrated over multiple physical
         # pixels, the noise properties destructively add over the rows in each
@@ -251,7 +296,9 @@ class TeledyneCMOS(GenericTransformer):
         ones = make_ones(self, signal).isel(y=0)
         # generate a dark current fixed pattern for imaging region.
         # Assume the manufacturers quoted values are per physical pixel, so
-        # divide by TDI_rows
+        # divide by TDI_rows. Note that this is the DSNU, not Dark Signal -
+        # this is already accounted for by multiplying the dark signal by the
+        # number of TDI rows
         self.DSNU = DSNU(ones,
                          self.dark_current / self.TDI_rows,
                          self.integration_time,
@@ -260,8 +307,7 @@ class TeledyneCMOS(GenericTransformer):
         self.PRNU = PRNU(ones, self.prnu_factor / self.TDI_rows).compute()
         # generate a column offset fixed pattern which is constant for all
         # bands as each band is horizontally aligned on the same sensor
-        self.column_offset_FPN = ones.isel(band=0) * numpy.random.normal(
-            0, self.offset_factor**2, size=ones.isel(band=0).shape)
+        self.column_offset_FPN = CONU(ones, self.offset_factor)
         self._set_steps()
         self._fitted = True
 
@@ -274,32 +320,32 @@ class TeledyneCMOS(GenericTransformer):
     def _set_steps(self):
         # called via fit
         self.steps = [
-            ('radiant energy to radiant flux', irradiance_to_flux, {}),
-            ('radiant flux at CCD', self.spectral_response.transform, {}),
-            ('radiant flux at resampled pixel', gaussian_isotropic,
+            ('radiant energy to radiant flux', energy_to_quantity, {}),
+            ('apply bandpass filters', self.spectral_response.transform, {}),
+            ('apply spatial resampling', gaussian_isotropic,
              {'psf_fwhm': self.psf_fwhm,
               'ground_sample_distance': self.ground_sample_distance}),
             ('radiant flux to flux density', radiance_to_irradiance_2,
              {'lens_diameter': self.lens_diameter,
               'focal_length': self.focal_length}),
-            ('flux to quanta', photon_mean,
+            ('flux density to flux', photon_mean,
              {'pixel_area': self.pixel_area,
               'integration_time': self.integration_time}),
-            ('photon noise', add_photon_noise, {}),
+            ('add photon shot noise', add_photon_noise, {}),
             ('photon to electron', photon_to_electron,
              {'Q_E': self.Q_E}),
-            ('photon FP noise', add_prnu,
+            ('add photo response non-uniformity', add_prnu,
              {'prnu': self.PRNU}),
-            ('dark current noise', add_dark_signal,
-             {'dark_current': self.dark_current,
+            ('add dark signal', add_dark_signal,
+             {'dark_current': self._dark_current,
               'integration_time': self.integration_time,
               'dsnu': self.DSNU}),
             ('electron to voltage', electron_to_voltage_ktc,
              {'v_ref': self.ccd_vref,
-              'sense_node_gain': self.sense_node_gain,
+              'sense_node_gain': self._sense_node_gain,
               'full_well': self.full_well,
               'temperature': self.temperature}),
-            ('column offset noise', add_column_offset,
+            ('add column offset noise', add_column_offset,
              {'offset': self.column_offset_FPN}),
             ('voltage to DN', voltage_to_DN,
              {'v_ref': self.adc_vref,
