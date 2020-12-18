@@ -289,12 +289,12 @@ def energy_to_quantity(energy):
 
 def photon_mean(flux, pixel_area, integration_time):
     """
-    Convert sensor photon flux to photon count at sensor
+    Convert sensor photon flux density to photon count at sensor
 
     Parameters
     ----------
     flux : xarray.DataArray
-        pixel flux (photons/second/m2)
+        pixel flux density (photons/second/m2)
     pixel_area : float
         area in microns 2
     integration_time : float
@@ -367,33 +367,33 @@ def radiance_to_irradiance_2(radiance, lens_diameter, focal_length):
     return radiance * (numpy.pi / 4) * ((lens_diameter / -focal_length) ** 2)
 
 
-def radiance_to_irradiance(radiance, altitude):
-    """
-    Convert radiance (W sr-1). Only an approximation for nadir sensor.
-    Forshortening is not taken into account.
-
-    Parameters
-    ----------
-    radiance : xarray.DataArray
-        at sensor radiance
-    altitude : float
-        sensor altitude (m)
-
-    Returns
-    -------
-    irradiance : xarray.DataArray
-        sensor irradiance
-    """
-    # pixel ground area in m2
-    A_ground = float(radiance.x[1] - radiance.x[0])**2
-    # sensor altitude m
-    # This approach treats the pixel value as a point source with a measured
-    # radiant intensity (integrate out area: I = L A_ground
-    I_ = A_ground * radiance
-    # use inverse square rule to convert to irradiance:
-    # H = (I \cos \theta)/r**2
-    # This version assumes satellite is nadir to pixel (cos 0 = 1)
-    return I_ / (altitude**2)
+# def radiance_to_irradiance(radiance, altitude):
+#     """
+#     Convert radiance (W sr-1). Only an approximation for nadir sensor.
+#     Forshortening is not taken into account.
+#
+#     Parameters
+#     ----------
+#     radiance : xarray.DataArray
+#         at sensor radiance
+#     altitude : float
+#         sensor altitude (m)
+#
+#     Returns
+#     -------
+#     irradiance : xarray.DataArray
+#         sensor irradiance
+#     """
+#     # pixel ground area in m2
+#     A_ground = float(radiance.x[1] - radiance.x[0])**2
+#     # sensor altitude m
+#     # This approach treats the pixel value as a point source with a measured
+#     # radiant intensity (integrate out area: I = L A_ground
+#     I_ = A_ground * radiance
+#     # use inverse square rule to convert to irradiance:
+#     # H = (I \cos \theta)/r**2
+#     # This version assumes satellite is nadir to pixel (cos 0 = 1)
+#     return I_ / (altitude**2)
 
 
 def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):

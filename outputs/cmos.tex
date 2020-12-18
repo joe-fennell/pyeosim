@@ -6,7 +6,7 @@
 \midrule
 2 & apply bandpass filters & pyeosim.spectral.TreeView\_1 & None\\
 \midrule
-3 & apply spatial resampling & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 4.00\\
+3 & apply spatial resampling & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 2.00\\
  & & & ground\_sample\_distance = 2.00\\
 \midrule
 4 & radiant flux to flux density & pyeosim.\_sensor.radiance\_to\_irradiance\_2 & lens\_diameter = 0.10\\
@@ -19,7 +19,7 @@
 \midrule
 7 & photon to electron & pyeosim.\_sensor.photon\_to\_electron & Q\_E = [0.86, ...]\\
 \midrule
-8 & add photo response non-uniformity & pyeosim.\_sensor.add\_prnu & prnu = [-0.00, ...]\\
+8 & add photo response non-uniformity & pyeosim.\_sensor.add\_prnu & prnu = [0.00, ...]\\
 \midrule
 9 & add dark signal & pyeosim.\_sensor.add\_dark\_signal & dark\_current = 1.82e+04\\
  & & & integration\_time = 9.14e-03\\

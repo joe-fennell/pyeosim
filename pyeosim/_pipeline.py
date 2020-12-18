@@ -40,6 +40,10 @@ class GenericTransformer(object):
         new_signal : xarray.DataArray
             transformed values
         """
+        try:
+            signal = signal.transpose('y', 'x', ...)
+        except ValueError:
+            raise ValueError('x or y coordinate missing')
         if self._fitted:
             return self._apply_steps(signal)
         else:
