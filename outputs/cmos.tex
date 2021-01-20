@@ -6,11 +6,11 @@
 \midrule
 2 & apply bandpass filters & pyeosim.spectral.TreeView\_1 & None\\
 \midrule
-3 & apply spatial resampling & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 2.00\\
+3 & apply spatial resampling & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 4.00\\
  & & & ground\_sample\_distance = 2.00\\
 \midrule
-4 & radiant flux to flux density & pyeosim.\_sensor.radiance\_to\_irradiance\_2 & lens\_diameter = 0.10\\
- & & & focal\_length = 2.57\\
+4 & radiant flux to flux density & pyeosim.\_sensor.radiance\_to\_irradiance\_2 & lens\_diameter = 0.25\\
+ & & & focal\_length = 2.51\\
 \midrule
 5 & flux density to flux & pyeosim.\_sensor.photon\_mean & pixel\_area = 100.00\\
  & & & integration\_time = 9.14e-03\\
@@ -21,20 +21,19 @@
 \midrule
 8 & add photo response non-uniformity & pyeosim.\_sensor.add\_prnu & prnu = [0.00, ...]\\
 \midrule
-9 & add dark signal & pyeosim.\_sensor.add\_dark\_signal & dark\_current = 1.82e+04\\
+9 & add dark signal & pyeosim.\_sensor.add\_dark\_signal & dark\_current = 5.70e+02\\
  & & & integration\_time = 9.14e-03\\
  & & & dsnu = [0.00, ...]\\
 \midrule
-10 & electron to voltage & pyeosim.\_sensor.electron\_to\_voltage\_ktc & v\_ref = 3.10\\
- & & & sense\_node\_gain = 5.00e-06\\
+10 & electron to voltage & pyeosim.\_sensor.electron\_to\_voltage & v\_ref = 1.80\\
+ & & & sense\_node\_gain = 5.00e-05\\
  & & & full\_well = 3.00e+04\\
- & & & temperature = 2.93e+02\\
+ & & & read\_noise = 20.00\\
 \midrule
 11 & add column offset noise & pyeosim.\_sensor.add\_column\_offset & offset = [-0.00, ...]\\
 \midrule
-12 & voltage to DN & pyeosim.\_sensor.voltage\_to\_DN & v\_ref = 3.10\\
- & & & adc\_gain = 1.00e+05\\
- & & & bit\_depth = 12.00\\
+12 & voltage to DN & pyeosim.\_sensor.voltage\_to\_DN & v\_ref = 1.60\\
+ & & & bit\_depth = 14.00\\
 \midrule
 \bottomrule
 \end{tabular}

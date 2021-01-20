@@ -26,8 +26,8 @@ class TeledyneCMOS(GenericTransformer):
                  quantum_efficiency='TDI_QE_BACK', full_well=3e4,
                  prnu_factor=.01, dark_current=570, dark_factor=.01,
                  offset_factor=.001, ccd_vref=3.1, sense_node_gain=5,
-                 temperature=293, source_follower_gain=1, adc_vref=3.1,
-                 adc_gain=10000, bit_depth=12, store_steps=False):
+                 read_noise=20, adc_vref=.5, bit_depth=14,
+                 store_steps=False):
         """
         Parameters
         ----------
@@ -72,14 +72,10 @@ class TeledyneCMOS(GenericTransformer):
             reference voltage of voltage sensor in volts
         sense_node_gain : float
             gain of sense node in microvolts/electron
-        temperature : float
-            temperature of amplifier in kelvin
-        source_follower_gain : float
-            gain of source follower amplifier in microvolts/electron
+        read_noise : int
+            Read noise in electrons
         adc_vref : float
             reference voltage of ADC in volts
-        adc_gain : float
-            ADC gain in DN/V
         bit_depth : int
             bit depth of the ADC
         store_steps : bool
@@ -114,11 +110,9 @@ class TeledyneCMOS(GenericTransformer):
         self.offset_factor = offset_factor
         self.ccd_vref = ccd_vref
         self.sense_node_gain = sense_node_gain
-        self.temperature = temperature
-        self.source_follower_gain = source_follower_gain
+        self.read_noise = read_noise
         # ADC properties
         self.adc_vref = adc_vref
-        self.adc_gain = adc_gain
         self.bit_depth = bit_depth
         self.PRNU = None  # calculated during fit
         self.DSNU = None  # calculated during fit
@@ -162,9 +156,8 @@ class TeledyneCMOS(GenericTransformer):
         # calculate focal length of ideal optic for the FoV and sensor width
         # Note that this applies only to a rectilinear optic (thin optic or
         # mirror) focused at infinity
-        self.focal_length = (.5 * self.sensor_width)\
-        / numpy.tan(self.afov * .5) / 1e3
-        self._sense_node_gain =  self.sense_node_gain * 1e-6  # uV to V
+        self.focal_length = self.sensor_width / numpy.tan(self.afov) / 1e3
+        self._sense_node_gain = self.sense_node_gain * 1e-6  # uV to V
         # set steps again to update values
         self._set_steps()
 
@@ -190,11 +183,11 @@ class TeledyneCMOS(GenericTransformer):
         # this is already accounted for by multiplying the dark signal by the
         # number of TDI rows
         self.DSNU = DSNU(ones,
-                         self.dark_current / self.TDI_rows,
+                         self._dark_current,
                          self.integration_time,
-                         self.dark_factor / self.TDI_rows).compute()
+                         self.dark_factor).compute()
         # generate a photon response fixed pattern
-        self.PRNU = PRNU(ones, self.prnu_factor / self.TDI_rows).compute()
+        self.PRNU = PRNU(ones, self.prnu_factor).compute()
         # generate a column offset fixed pattern which is constant for all
         # bands as each band is horizontally aligned on the same sensor
         self.column_offset_FPN = CONU(ones, self.offset_factor)
@@ -242,16 +235,15 @@ class TeledyneCMOS(GenericTransformer):
              {'dark_current': self._dark_current,
               'integration_time': self.integration_time,
               'dsnu': self.DSNU}),
-            ('electron to voltage', electron_to_voltage_ktc,
+            ('electron to voltage', electron_to_voltage,
              {'v_ref': self.ccd_vref,
               'sense_node_gain': self._sense_node_gain,
               'full_well': self.full_well,
-              'temperature': self.temperature}),
+              'read_noise': self.read_noise}),
             ('add column offset noise', add_column_offset,
              {'offset': self.column_offset_FPN}),
             ('voltage to DN', voltage_to_DN,
              {'v_ref': self.adc_vref,
-              'adc_gain': self.adc_gain,
               'bit_depth': self.bit_depth})
         ]
 

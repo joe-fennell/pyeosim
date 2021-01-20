@@ -10,8 +10,10 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{natbib}
+
 \author{Joe Fennell}
-\title{High-level simulation of future multispectral imagery from the proposed TreeView satellite.}
+\title{High-level simulation of future multispectral imagery from the proposed TreeView satellite. v1.2}
 
 \begin{document}
 \maketitle
@@ -34,6 +36,8 @@ In designing the work the following considerations were made:
 \item The simulation pipeline is designed using Dask/Python as it is (i) Open Source (and so easily verified, reviewed and tested by any research group) and (ii) a natively parallel environment for efficient, scalable computation.
 \end{enumerate}
  
+\subsection{Simulation of a line-scanning sensor}
+A line-scanning Time Delay Integration (TDI) Charged Metal Oxide Silicon (CMOS) sensor is the only likely sensor suitable for purpose and so this work focuses on the simulation only of this class of sensor.
 
 \section{Stages of Simulation}
 This section details the tools and methodologies used for each stage in the simulation/evaluation pipeline.
@@ -61,12 +65,31 @@ In the first stages, the following approximations are proposed:
 \end{enumerate}
 
 \subsection{Satellite Geometric Simulation}
-The at-satellite radiance ($L_{e,\Omega}(\lambda)$) is in units of power per steradian ($W sr^{-1}$) and needs to be converted to at-satellite irradiance ($W m^{-2}$). Each cell in the input array (ground plane) corresponds to a fraction of the sensor field of view (Instantaneous field-of-view -- IFoV) ($sr$). As such, the per-cell irradiance ($E_i$) should be estimated for a sensor at nadir using the Ground Sample Distance ($d_{GSD}$) and the altitude of the satellite above the target($d_{A}$):
+The at-satellite radiance ($L_{e,\Omega}(\lambda)$) is in units of power per steradian per ground area ($W sr^{-1} m^{-2}$) and so requires conversion to at-satellite irradiance ($W m^{-2}$). When treated as a thin lens problem (in the absence of optic specifics) the irradiance at a position($\textbf{x}$) on the sensor is calculated as the solid angle subtended by the lens. We follow the interpretation by \cite{Sato1999} to show that sensor irradiance is linearly related to radiance and dependent on the diameter of the front optic ($D$), focal length ($f$) and the pixel-lens normal offset angle ($\alpha$):
 \begin{equation}
-E_e(\lambda) = L_{e,\Omega}(\lambda) \tan^{-1} \left(\frac{d_{GSD}}{d_A}\right)
+E_e(\lambda, \textbf{x}) = L_{e,\Omega}(\lambda) \frac{\pi}{4} \left(\frac{D}{f}\right)^{2} \cos^4 \alpha(\textbf{x})
+\label{eqn1}
 \end{equation}
 
-As the ground plane represents a non-zero area, this is an approximation for pixels not at the centre of the image.
+The angular field of view ($afov$) is calculated from the swath width ($d_{swath}$) and sensor altitude ($d_{altitude}$):
+
+\begin{equation}
+afov = 2\cdot \tan^{-1}\frac{0.5\cdot~d_{swath}}{d_{altitude}}
+\end{equation}
+
+The focal length ($f$) is calculated assuming the optic will be focused near infinity and so, from the thin lens equation, the distance between rear optic and lens ($s\prime$) is approximately equal:
+
+\begin{equation}
+\frac{1}{s\prime} + \frac{1}{\infty} = \frac{1}{f} \approx \frac{1}{s\prime}
+\end{equation}
+
+and so by simple trigonometry, the angular field of view ($afov$) and sensor width ($d_{sensor}$) are used to calculate the desired focal length:
+
+\begin{equation}
+f= \frac{d_{sensor}}{\tan afov}
+\end{equation}
+
+As focal length is expected to be very large due to the distance from target and narrow swath needed to achieve desired ground sampling distances, the $\cos^4\alpha(\textbf{x})$ term will have a minimal effect on the simulation and so is omitted for computational simplicity
 
 \subsection{Sensor Simulation}
 The stages of the sensor simulation are given below. Only linear responses (with the exception of physically-motivated truncations) have been modelled here to represent the linear response component of the sensor. Fixed pattern noise has not been modelled.
@@ -228,13 +251,13 @@ RMSE = \sqrt{\frac{(S_{ref}-S_{sim})^{2}}{N}}
 The pipeline was used to generate test signals for a low noise (10 $e^- pixel ^{-1}$, low spatial resolution (4m Ground Sample Distance) scenario (Figure \ref{fig:1}) and  a high noise (120 $e^- pixel ^{-1}$, low spatial resolution (1m Ground Sample Distance) scenario (Figure \ref{fig:2}). Radiances for a satellite position perpendicular to the centre of the sample imagery (52.04N, 0.76E) on the day the imagery were collected (22/6/2020) at solar noon (12.00 UST) and with a standard coastal atmospheric optical profile were generated for estimating at-sensor radiances.
 
 \begin{figure*}
-\includegraphics[width=\textwidth]{figures/test_output_im1}
+%\includegraphics[width=\textwidth]{figures/test_output_im1}
 \caption{Sample simulated signals (4m GSD, dark noise=10) using a pipeline based on Sentinel-2 VNIR bands and a CCD sensor. The input hyperspectral (A), simulated RGB (B), Predicted false colour NIR (C), Normalised Difference Vegetation Index (D) are shown as images and example input reflectance spectra (E) and example simulated reflectance spectra (F) are shown as line plots. }
 \label{fig:1}
 \end{figure*}
 
 \begin{figure*}
-\includegraphics[width=\textwidth]{figures/test_output_im2}
+%\includegraphics[width=\textwidth]{figures/test_output_im2}
 \caption{Sample simulated signals (1m GSD, dark noise=120) using a pipeline based on Sentinel-2 VNIR bands and a CCD sensor. The input hyperspectral (A), simulated RGB (B), Predicted false colour NIR (C), Normalised Difference Vegetation Index (D) are shown as images and example input reflectance spectra (E) and example simulated reflectance spectra (F) are shown as line plots. }
 \label{fig:2}
 \end{figure*}
@@ -303,7 +326,7 @@ The pipeline was used to generate test signals for a low noise (10 $e^- pixel ^{
 \subsection{Demonstration 1: Effect of Dark Noise level}
 \begin{figure*}
 \centering
-\includegraphics[width=0.5\textwidth]{figures/test_output_dn}
+%\includegraphics[width=0.5\textwidth]{figures/test_output_dn}
 \caption{Uncalibrated (red) and calibrated (black) Root Mean Squared Error for low spatial resolution (solid) and high spatial resolution (dashed) scenarios over a range of dark noise levels}
 \label{fig:scores}
 \end{figure*}
@@ -320,7 +343,7 @@ Use of RanSaC calibration decreased the RMSE for both scenarios (Figure \ref{fig
 For the zero-noise, the 1m scenario had a calibrated RMSE of 0.12 compared to 0.26 in the 5m scenario (Standard Deviation $<0.001$). For increasing noise levels between 11 and 120 $e^-$, the calibrated RMSE increased in both scenarios, however the increase was greater in the high spatial resolution example, rising to 0.23 at 120$e^-$ . This was expected as the spatial degradation noise in the lower spatial resolution scenario already dominates. Even a completely noise-free example will have a RMSE $>1$ due to spatial downsampling kernel.
 
 \begin{figure*}
-\includegraphics[width=\textwidth]{figures/test_output_calibration}
+%\includegraphics[width=\textwidth]{figures/test_output_calibration}
 \caption{Uncalibrated (red points) and calibrated (black) simulated v. reference values with regression lines showing model fits. Panels show different noise levels}
 \label{fig:cal}
 \end{figure*}
@@ -332,6 +355,6 @@ For the zero-noise, the 1m scenario had a calibrated RMSE of 0.12 compared to 0.
 \item More information is needed for the likely ranges of sensor properties.
 \end{enumerate}
 
-
+\bibliography{references}
 
 \end{document}

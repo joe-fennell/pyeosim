@@ -74,31 +74,31 @@ def add_gaussian_noise(electron_count, sigma):
     return (electron_count + gaus_noise).round()
 
 
-def add_ktc_noise(voltage, temperature, sense_node_capacitance):
-    """
-    Adds kTC noise to a reference voltage
-
-    Parameters
-    ----------
-    voltage : xarray.DataArray
-        voltage array
-    temperature : float
-        t in kelvin
-    sense_node_capacitance : float
-        V/e-
-
-    Returns
-    -------
-    voltage : xarray.DataArray
-        new voltage
-    """
-    kb = 1.38064852e-23  # boltzmann constant
-    sigma = numpy.sqrt((kb * temperature) / sense_node_capacitance)
-    # log normal with Ln(mean) = 0
-    _ln = numpy.random.lognormal(0, sigma**2, size=voltage.shape)
-    # subtract off the actual mean to generate LnN(0, sig)
-    _ln -= _ln.mean()
-    return voltage + _ln
+# def add_ktc_noise(voltage, temperature, sense_node_capacitance):
+#     """
+#     Adds kTC noise to a reference voltage
+#
+#     Parameters
+#     ----------
+#     voltage : xarray.DataArray
+#         voltage array
+#     temperature : float
+#         t in kelvin
+#     sense_node_capacitance : float
+#         V/e-
+#
+#     Returns
+#     -------
+#     voltage : xarray.DataArray
+#         new voltage
+#     """
+#     kb = 1.38064852e-23  # boltzmann constant
+#     sigma = numpy.sqrt((kb * temperature) / sense_node_capacitance)
+#     # log normal with Ln(mean) = 0
+#     _ln = numpy.random.lognormal(0, sigma**2, size=voltage.shape)
+#     # subtract off the actual mean to generate LnN(0, sig)
+#     _ln -= _ln.mean()
+#     return voltage + _ln
 
 
 def add_photon_noise(photon_count):
@@ -137,24 +137,24 @@ def add_prnu(electrons, prnu):
     # add photo non-uniformity
     return (electrons + electrons * prnu).round()
 
-
-def apply_source_follower_gain(voltage, source_follower_gain):
-    """
-    Applies source follower voltage amplification (noise free)
-
-    Parameters
-    ----------
-    voltage : xarray.DataArray
-        voltage array
-    source_follower_gain : float
-        source follower gain
-
-    Returns
-    -------
-    voltage : xarray.DataArray
-        new voltage
-    """
-    return voltage * source_follower_gain
+#
+# def apply_source_follower_gain(voltage, source_follower_gain):
+#     """
+#     Applies source follower voltage amplification (noise free)
+#
+#     Parameters
+#     ----------
+#     voltage : xarray.DataArray
+#         voltage array
+#     source_follower_gain : float
+#         source follower gain
+#
+#     Returns
+#     -------
+#     voltage : xarray.DataArray
+#         new voltage
+#     """
+#     return voltage * source_follower_gain
 
 
 def CONU(ones, offset_factor):
@@ -216,7 +216,7 @@ def DSNU(ones, dark_current, integration_time, dark_factor):
 
 
 def electron_to_voltage(electron_count, v_ref, sense_node_gain,
-                        full_well):
+                        full_well, read_noise):
     """
     Converts electrons (charge) to voltage by simulating a sense node with a
     fixed v_ref
@@ -229,8 +229,10 @@ def electron_to_voltage(electron_count, v_ref, sense_node_gain,
         reference voltage
     sense_node_gain : float
         gain in V/e-
-    full_well : float
+    full_well : int
         max numberof electrons per pixel
+    read_noise : int
+        read noise in electrons per channel
 
     Returns
     -------
@@ -238,39 +240,42 @@ def electron_to_voltage(electron_count, v_ref, sense_node_gain,
         voltage of sensor
     """
     # truncate at full well
-    e = electron_count.round().where(electron_count < full_well, full_well)
-    return v_ref - (e * sense_node_gain)
-
-
-def electron_to_voltage_ktc(electron_count, v_ref, sense_node_gain,
-                            full_well, temperature):
-    """
-    Converts electrons (charge) to voltage by simulating a sense node with a
-    fixed v_ref with added kTC noise
-
-    Parameters
-    ----------
-    electron_count : xarray.DataArray
-        charge or electron count
-    v_ref : float
-        reference voltage
-    sense_node_gain : float
-        gain in V/e-
-    full_well : float
-        max numberof electrons per pixel
-
-    Returns
-    -------
-    voltage : xarray.DataArray
-        voltage of sensor
-    """
-    # calculate capacitance
-    q = 1.602176487e-19  # charge of electron q
-    sense_node_capacitance = q / sense_node_gain
-    v_ref = add_ktc_noise(v_ref * xarray.ones_like(electron_count),
-                          temperature, sense_node_capacitance)
     e = electron_count.where(electron_count < full_well, full_well)
-    return v_ref - (e * sense_node_gain)
+    # add read noise
+    e = add_gaussian_noise(e, read_noise).round()
+    # return v_ref - (e * sense_node_gain)
+    return e * sense_node_gain
+
+
+# def electron_to_voltage_ktc(electron_count, v_ref, sense_node_gain,
+#                             full_well, temperature):
+#     """
+#     Converts electrons (charge) to voltage by simulating a sense node with a
+#     fixed v_ref with added kTC noise
+#
+#     Parameters
+#     ----------
+#     electron_count : xarray.DataArray
+#         charge or electron count
+#     v_ref : float
+#         reference voltage
+#     sense_node_gain : float
+#         gain in V/e-
+#     full_well : float
+#         max numberof electrons per pixel
+#
+#     Returns
+#     -------
+#     voltage : xarray.DataArray
+#         voltage of sensor
+#     """
+#     # calculate capacitance
+#     q = 1.602176487e-19  # charge of electron q
+#     sense_node_capacitance = q / sense_node_gain
+#     v_ref = add_ktc_noise(v_ref * xarray.ones_like(electron_count),
+#                           temperature, sense_node_capacitance)
+#     e = electron_count.where(electron_count < full_well, full_well)
+#     return v_ref - (e * sense_node_gain)
 
 
 def energy_to_quantity(energy):
@@ -364,7 +369,7 @@ def radiance_to_irradiance_2(radiance, lens_diameter, focal_length):
     irradiance : xarray.DataArray
         sensor irradiance
     """
-    return radiance * (numpy.pi / 4) * ((lens_diameter / -focal_length) ** 2)
+    return radiance * (numpy.pi / 4) * ((lens_diameter / focal_length) ** 2)
 
 
 # def radiance_to_irradiance(radiance, altitude):
@@ -396,7 +401,7 @@ def radiance_to_irradiance_2(radiance, lens_diameter, focal_length):
 #     return I_ / (altitude**2)
 
 
-def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):
+def voltage_to_DN(voltage, v_ref, bit_depth):
     """
     Model a linear response ADC.
 
@@ -406,8 +411,6 @@ def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):
         voltage
     v_ref : float
         reference voltage of ADC
-    adc_gain : float
-        ADC gain
     bit_depth : int
         ADC depth
 
@@ -417,7 +420,8 @@ def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):
         simulated digital number values
     """
     max_DN = numpy.int(2**bit_depth - 1)
-    DN = (adc_gain * (v_ref - voltage))
+    # DN = (voltage * (2**bit_depth))/v_ref
+    DN = (voltage / v_ref) * (2**bit_depth)
     DN = DN.round().where(DN < max_DN, max_DN)
     return DN.round().where(DN > 0, 0)
 
