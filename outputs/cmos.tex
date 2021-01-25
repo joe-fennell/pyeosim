@@ -9,7 +9,7 @@
 3 & apply spatial resampling & pyeosim.spatial.gaussian\_isotropic & psf\_fwhm = 4.00\\
  & & & ground\_sample\_distance = 2.00\\
 \midrule
-4 & radiant flux to flux density & pyeosim.\_sensor.radiance\_to\_irradiance\_2 & lens\_diameter = 0.25\\
+4 & radiant flux to flux density & pyeosim.\_sensor.radiance\_to\_irradiance\_2 & lens\_diameter = 0.50\\
  & & & focal\_length = 2.51\\
 \midrule
 5 & flux density to flux & pyeosim.\_sensor.photon\_mean & pixel\_area = 100.00\\
@@ -25,14 +25,14 @@
  & & & integration\_time = 9.14e-03\\
  & & & dsnu = [0.00, ...]\\
 \midrule
-10 & electron to voltage & pyeosim.\_sensor.electron\_to\_voltage & v\_ref = 1.80\\
+10 & electron to voltage & pyeosim.\_sensor.electron\_to\_voltage & v\_ref = 0.50\\
  & & & sense\_node\_gain = 5.00e-05\\
  & & & full\_well = 3.00e+04\\
  & & & read\_noise = 20.00\\
 \midrule
 11 & add column offset noise & pyeosim.\_sensor.add\_column\_offset & offset = [-0.00, ...]\\
 \midrule
-12 & voltage to DN & pyeosim.\_sensor.voltage\_to\_DN & v\_ref = 1.60\\
+12 & voltage to DN & pyeosim.\_sensor.voltage\_to\_DN & v\_ref = 0.50\\
  & & & bit\_depth = 14.00\\
 \midrule
 \bottomrule

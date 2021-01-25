@@ -4,7 +4,7 @@ writing new subclasses of GenericTransformer in 'sensor' submodule.
 """
 
 import numpy
-import xarray
+# import xarray
 from ._decorators import return_equal_xarray
 
 
@@ -74,33 +74,6 @@ def add_gaussian_noise(electron_count, sigma):
     return (electron_count + gaus_noise).round()
 
 
-# def add_ktc_noise(voltage, temperature, sense_node_capacitance):
-#     """
-#     Adds kTC noise to a reference voltage
-#
-#     Parameters
-#     ----------
-#     voltage : xarray.DataArray
-#         voltage array
-#     temperature : float
-#         t in kelvin
-#     sense_node_capacitance : float
-#         V/e-
-#
-#     Returns
-#     -------
-#     voltage : xarray.DataArray
-#         new voltage
-#     """
-#     kb = 1.38064852e-23  # boltzmann constant
-#     sigma = numpy.sqrt((kb * temperature) / sense_node_capacitance)
-#     # log normal with Ln(mean) = 0
-#     _ln = numpy.random.lognormal(0, sigma**2, size=voltage.shape)
-#     # subtract off the actual mean to generate LnN(0, sig)
-#     _ln -= _ln.mean()
-#     return voltage + _ln
-
-
 def add_photon_noise(photon_count):
     """
     Converts photon count to a Poisson random process simulating photon shot
@@ -137,25 +110,6 @@ def add_prnu(electrons, prnu):
     # add photo non-uniformity
     return (electrons + electrons * prnu).round()
 
-#
-# def apply_source_follower_gain(voltage, source_follower_gain):
-#     """
-#     Applies source follower voltage amplification (noise free)
-#
-#     Parameters
-#     ----------
-#     voltage : xarray.DataArray
-#         voltage array
-#     source_follower_gain : float
-#         source follower gain
-#
-#     Returns
-#     -------
-#     voltage : xarray.DataArray
-#         new voltage
-#     """
-#     return voltage * source_follower_gain
-
 
 def CONU(ones, offset_factor):
     """
@@ -173,7 +127,7 @@ def CONU(ones, offset_factor):
     CONU : xarray.DataArray
         Column offset non uniformity array with zero mean
     """
-    fpn = ones.isel(band=0) * numpy.random.normal(0, offset_factor**2,
+    fpn = ones.isel(band=0) * numpy.random.normal(0, offset_factor,
                                                   size=ones.isel(band=0).shape)
     # drop band and band_name coords if exist
     for var in ['band', 'band_name']:
@@ -187,6 +141,8 @@ def CONU(ones, offset_factor):
 def DSNU(ones, dark_current, integration_time, dark_factor):
     """
     Calculates the dark signal non-uniformity array.
+
+    Note that dark_current should be per actual pixel, not per pixel subarray
 
     This assumes a log-Normal distribution suitable for short integration times
     of less than 100 seconds
@@ -210,7 +166,7 @@ def DSNU(ones, dark_current, integration_time, dark_factor):
     """
     sigma = integration_time * dark_current * dark_factor
     # multiply by ones array to convert numpy array to xarray
-    fpn = ones * numpy.random.lognormal(0, sigma**2, size=ones.shape)
+    fpn = ones * numpy.random.lognormal(0, sigma, size=ones.shape)
     # subtract off the mean to generate a zero-mean distribution
     return fpn - fpn.mean()
 
@@ -243,39 +199,8 @@ def electron_to_voltage(electron_count, v_ref, sense_node_gain,
     e = electron_count.where(electron_count < full_well, full_well)
     # add read noise
     e = add_gaussian_noise(e, read_noise).round()
-    # return v_ref - (e * sense_node_gain)
-    return e * sense_node_gain
-
-
-# def electron_to_voltage_ktc(electron_count, v_ref, sense_node_gain,
-#                             full_well, temperature):
-#     """
-#     Converts electrons (charge) to voltage by simulating a sense node with a
-#     fixed v_ref with added kTC noise
-#
-#     Parameters
-#     ----------
-#     electron_count : xarray.DataArray
-#         charge or electron count
-#     v_ref : float
-#         reference voltage
-#     sense_node_gain : float
-#         gain in V/e-
-#     full_well : float
-#         max numberof electrons per pixel
-#
-#     Returns
-#     -------
-#     voltage : xarray.DataArray
-#         voltage of sensor
-#     """
-#     # calculate capacitance
-#     q = 1.602176487e-19  # charge of electron q
-#     sense_node_capacitance = q / sense_node_gain
-#     v_ref = add_ktc_noise(v_ref * xarray.ones_like(electron_count),
-#                           temperature, sense_node_capacitance)
-#     e = electron_count.where(electron_count < full_well, full_well)
-#     return v_ref - (e * sense_node_gain)
+    return v_ref - (e * sense_node_gain)
+    # return e * sense_node_gain
 
 
 def energy_to_quantity(energy):
@@ -345,7 +270,7 @@ def PRNU(ones, prnu_factor):
     prnu : xarray.DataArray
         array of same shape as ones
     """
-    return ones * numpy.random.normal(0, prnu_factor**2, size=ones.shape)
+    return ones * numpy.random.normal(0, prnu_factor, size=ones.shape)
 
 
 def radiance_to_irradiance_2(radiance, lens_diameter, focal_length):
@@ -420,8 +345,9 @@ def voltage_to_DN(voltage, v_ref, bit_depth):
         simulated digital number values
     """
     max_DN = numpy.int(2**bit_depth - 1)
+    DN = max_DN * (v_ref - voltage)
     # DN = (voltage * (2**bit_depth))/v_ref
-    DN = (voltage / v_ref) * (2**bit_depth)
+    # DN = (voltage / v_ref) * (2**bit_depth)
     DN = DN.round().where(DN < max_DN, max_DN)
     return DN.round().where(DN > 0, 0)
 

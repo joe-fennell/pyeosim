@@ -183,7 +183,7 @@ class TeledyneCMOS(GenericTransformer):
         # this is already accounted for by multiplying the dark signal by the
         # number of TDI rows
         self.DSNU = DSNU(ones,
-                         self._dark_current,
+                         self.dark_current,
                          self.integration_time,
                          self.dark_factor).compute()
         # generate a photon response fixed pattern
