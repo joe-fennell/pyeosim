@@ -17,3 +17,14 @@ class Test6S(LUT):
         # 6SV output is in W m-2 sr-1 micron-1 so convert to
         # W m-2 sr-1 nanometer-1 by dividing by 1000
         self.LUT = self.LUT / 1000
+        self.LUT.attrs = {
+            'latitude': 52.04,
+            'longitude': 0.76,
+            'datetimestring': '2020/06/12:00',
+            'view_z': 0,
+            'view_a': 0,
+            'water_vapour': 2.93,
+            'ozone': 0.319,
+            'AOT550': 0.5,
+            'visibility_km': 8.49
+        }
