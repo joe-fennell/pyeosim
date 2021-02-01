@@ -20,7 +20,7 @@ class Test6S(LUT):
         self.LUT.attrs = {
             'latitude': 52.04,
             'longitude': 0.76,
-            'datetimestring': '2020/06/12:00',
+            'datetimestring': '2020/06/22T12:00',
             'view_z': 0,
             'view_a': 0,
             'water_vapour': 2.93,
