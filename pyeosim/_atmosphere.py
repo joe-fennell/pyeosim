@@ -1,5 +1,6 @@
 from ._decorators import spectral_response, reflectance_lookup
 import xarray
+import json
 
 
 class LUT(object):
@@ -63,7 +64,9 @@ class LUT(object):
         new = apply_LUT(signal, self.LUT)
         new_meta = {
             'input_signal_meta': meta,
-            'atmospheric_simulation': str(self.LUT.attrs)
+            'atmospheric_simulation': json.dumps(self.LUT.attrs,
+                                                 default=lambda o: '<Not stored>')
+            # 'atmospheric_simulation': str(self.LUT.attrs)
             }
         new.attrs = new_meta
         return new

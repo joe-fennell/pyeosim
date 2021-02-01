@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import json
 
 
 class GenericTransformer(object):
@@ -134,7 +135,9 @@ class GenericTransformer(object):
 
         name = self.__class__.__name__
         k = '{}_sensor_simulation'.format(name)
-        meta[k] = str(self.get_params())
+        meta[k] = json.dumps(self.get_params(),
+                             default=lambda o: '<Not stored>')
+        # meta[k] = str(self.get_params())
         _signal.attrs = meta
         return _signal
 
