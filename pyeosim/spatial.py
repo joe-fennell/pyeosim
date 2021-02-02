@@ -29,9 +29,19 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
     downsampled_array : xarray.DataArray
         2D xarray raster array at new resolution
     """
-    @return_equal_xarray
-    def apply_gauss_filter(x):
-        return filters.gaussian(x, sigma=sigma, multichannel=True)
+    # @return_equal_xarray
+    # def apply_gauss_filter(x):
+    #     return filters.gaussian(x, sigma=sigma)
+    def apply_gaussian(ar):
+        # wrapped func
+        def gfilter(x):
+            return filters.gaussian(x, sigma,
+                                    multichannel=False,
+                                    preserve_range=True)
+    return xarray.apply_ufunc(gfilter, ar,
+                              input_core_dims=[['y', 'x']],
+                              output_core_dims=[['y','x']])
+
     # interpolate out NAs in each spatial axis
     signal = signal.transpose('y', 'x', ...)
     # get signal resolution
@@ -47,5 +57,6 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
     dx = int(ground_sample_distance/res)
     dy = dx
     # signal_new = signal.copy()
-    signal_new = signal.map_blocks(apply_gauss_filter)
+    # signal_new = signal.map_blocks(apply_gauss_filter)
+    signal_new = apply_gaussian(signal)
     return signal_new.coarsen(x=dx, y=dy, boundary='pad').mean()
