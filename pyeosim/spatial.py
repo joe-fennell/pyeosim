@@ -4,6 +4,7 @@ Spatial response functions
 from ._decorators import spatial_response, return_equal_xarray
 from skimage import filters
 import numpy as np
+import xarray
 
 
 @spatial_response
