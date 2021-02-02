@@ -199,7 +199,8 @@ def electron_to_voltage(electron_count, v_ref, sense_node_gain,
     e = electron_count.where(electron_count < full_well, full_well)
     # add read noise
     e = add_gaussian_noise(e, read_noise).round()
-    return v_ref - (e * sense_node_gain)
+    return v_ref * (e * sense_node_gain)
+    # return v_ref - (e * sense_node_gain)
     # return e * sense_node_gain
 
 
@@ -345,7 +346,8 @@ def voltage_to_DN(voltage, v_ref, bit_depth):
         simulated digital number values
     """
     max_DN = numpy.int(2**bit_depth - 1)
-    DN = max_DN * (v_ref - voltage)
+    # DN = max_DN * (v_ref - voltage)
+    DN = max_DN * (voltage / v_ref)
     # DN = (voltage * (2**bit_depth))/v_ref
     # DN = (voltage / v_ref) * (2**bit_depth)
     DN = DN.round().where(DN < max_DN, max_DN)
