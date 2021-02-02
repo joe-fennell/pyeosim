@@ -43,6 +43,7 @@ def LUT_from_file(fpath, common_params={}):
     for sim in os.listdir(fpath):
         try:
             path = os.path.join(fpath, sim)
+            if
             files = os.listdir(path)
             # get rho from filename
             rhos = [float(x.split('_')[1].split('.')[0])/100 for x in files]
@@ -61,7 +62,7 @@ def LUT_from_file(fpath, common_params={}):
                 ('scenario', [sim])
             ])
             out.append(new)
-        except IndexError:
+        except (IndexError, NotADirectoryError):
             pass
     ar = xarray.concat(out, 'scenario').interpolate_na(dim='wavelength')
     ar.attrs = common_params
