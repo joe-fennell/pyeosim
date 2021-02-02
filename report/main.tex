@@ -64,6 +64,7 @@ D & Diameter of front optic \\
 DN & Digital Number \\
 DSNU & Dark Signal Non-Uniformity \\
 FWHM & Full Width at Half Maximum\\
+FWC & Full Well Capacity\\
 f & Focal length\\
 g(x^{\prime}, y^{\prime}) & Spatial degradation kernel function \\
 G_{ADC} & ADC Gain \\
@@ -284,19 +285,25 @@ This value is truncated at the full well capacity of the pixel sub-array.
 The charge collected during an integration cycle is then converted to a voltage by the column amplifiers
 
 \begin{equation}
-V_s = V_{SN} - N \cdot G_{SN}
+V_s = V_{SN}(N \cdot G_{SN})
 \end{equation}
 where $V_{SN}$  is the reference voltage (V) and $G_{SN}$ is the sense node gain ($V/e^{-}$).
+
+The Full Well Capacity ($FWC$) can be used to define $G_{SN}$ to cover the full charge handling capacity of the sensor:
+
+\begin{equation}
+G_{SN} = \frac{V_{SN}}{FWC}
+\end{equation}
 
 \subsubsection{Conversion to Digital Number}
 The amplified voltage is then converted to a digital number (DN) the Analogue-Digital Converter (ADC)
 
 \begin{equation}
-DN = V_{ADC} -V_s \cdot G_{ADC}
+DN = DN_{max}~\frac{V_s}{V_{ADC}}
 \end{equation}
-where $V_{ADC}$  is the Analogue-Digital Converter reference voltage and $G_{ADC}$ is the ADC gain ($DN/V$).
+where $V_{ADC}$  is the Analogue-Digital Converter reference voltage.
 
-The result is truncated at the maximum DN value ($DN_{max}$) and zero to simulate clipping and non-detection behaviours.
+The resulting array is truncated between zero and the maximum DN value ($DN_{max}$) to simulate non-detection and clipping behaviours.
 
 \section{Evaluating Performance}
 Performance metrics for a given sensor-atmosphere parametrisation can be divided into classification and parameter estimation metrics. Signal-to-noise ratio (SNR) calculations 
