@@ -39,9 +39,9 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
             return filters.gaussian(x, sigma,
                                     multichannel=False,
                                     preserve_range=True)
-    return xarray.apply_ufunc(gfilter, ar,
-                              input_core_dims=[['y', 'x']],
-                              output_core_dims=[['y','x']])
+        return xarray.apply_ufunc(gfilter, ar,
+                                  input_core_dims=[['y', 'x']],
+                                  output_core_dims=[['y','x']])
 
     # interpolate out NAs in each spatial axis
     signal = signal.transpose('y', 'x', ...)
