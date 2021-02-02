@@ -2,7 +2,7 @@
 Spatial response functions
 """
 from ._decorators import spatial_response, return_equal_xarray
-from skimage import filters
+from scipy import ndimage
 import numpy as np
 import xarray
 
@@ -36,12 +36,15 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
     def apply_gaussian(ar):
         # wrapped func
         def gfilter(x):
-            return filters.gaussian(x, sigma,
-                                    multichannel=False,
-                                    preserve_range=True)
+            return ndimage.gaussian_filter1d(x, sigma)
+        # apply in y dim, then in x dim
+        ar = xarray.apply_ufunc(gfilter, ar,
+                                input_core_dims=[['y']],
+                                output_core_dims=[['y']])
+
         return xarray.apply_ufunc(gfilter, ar,
-                                  input_core_dims=[['y', 'x']],
-                                  output_core_dims=[['y','x']])
+                                  input_core_dims=[['x']],
+                                  output_core_dims=[['x']])
 
     # interpolate out NAs in each spatial axis
     signal = signal.transpose('y', 'x', ...)
