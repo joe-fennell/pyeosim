@@ -1,7 +1,7 @@
 """
 Spatial response functions
 """
-from ._decorators import spatial_response, return_equal_xarray
+from ._decorators import spatial_response
 from scipy import ndimage
 import numpy as np
 import xarray

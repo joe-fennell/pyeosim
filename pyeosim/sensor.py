@@ -5,7 +5,7 @@ Classes for detector operations
 from ._sensor import *  # sensor functions stored separately
 from .datasets import dload
 from .spatial import gaussian_isotropic
-from .spectral import TreeView_1, band_QE, Sentinel2VNIR
+from .spectral import *
 from ._pipeline import GenericTransformer
 
 import numpy
@@ -98,6 +98,8 @@ class TeledyneCMOS(GenericTransformer):
         # Sensor bandpass properties
         if spectral_response is None:
             self.spectral_response = TreeView_1()
+        elif type(spectral_response) == str:
+            self.spectral_response = eval(spectral_response)
         else:
             self.spectral_response = spectral_response
         # Sensor properties
