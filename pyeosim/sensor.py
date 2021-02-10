@@ -184,15 +184,24 @@ class TeledyneCMOS(GenericTransformer):
         # divide by TDI_rows. Note that this is the DSNU, not Dark Signal -
         # this is already accounted for by multiplying the dark signal by the
         # number of TDI rows
-        self.DSNU = DSNU(ones,
-                         self.dark_current,
-                         self.integration_time,
-                         self.dark_factor).compute()
+        if self.dark_factor == 0:
+            self.DSNU = 0
+        else:
+            self.DSNU = DSNU(ones,
+                             self.dark_current,
+                             self.integration_time,
+                             self.dark_factor).compute()
         # generate a photon response fixed pattern
-        self.PRNU = PRNU(ones, self.prnu_factor).compute()
+        if self.prnu_factor == 0:
+            self.PRNU = 0
+        else:
+            self.PRNU = PRNU(ones, self.prnu_factor).compute()
         # generate a column offset fixed pattern which is constant for all
         # bands as each band is horizontally aligned on the same sensor
-        self.column_offset_FPN = CONU(ones, self.offset_factor)
+        if self.offset_factor == 0:
+            self.column_offset_FPN = 0
+        else:
+            self.column_offset_FPN = CONU(ones, self.offset_factor)
         self._set_steps()
         self._fitted = True
 
