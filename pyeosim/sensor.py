@@ -267,7 +267,7 @@ class TCMOS_test(TeledyneCMOS):
     def _set_steps(self):
         super()._set_steps()
         # remove gaussian resample step
-        self.steps.pop(1)
+        self.steps.pop(2)
         # self.steps.pop(2)
 
     def _make_ones(self, signal):
