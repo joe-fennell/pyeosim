@@ -268,5 +268,5 @@ class TCMOS_test(TeledyneCMOS):
         for dim in signal.dims:
             if dim not in ['x', 'y', 'wavelength']:
                 signal = signal.isel({dim: 0})
-        out = self.spectral_response.transform(signal)
-        return xarray.ones_like(out)
+        # out = self.spectral_response.transform(signal)
+        return xarray.ones_like(signal)
