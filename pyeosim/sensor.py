@@ -252,12 +252,13 @@ class TeledyneCMOS(GenericTransformer):
 
 class TCMOS_test(TeledyneCMOS):
     """
-    Same as TeledyneCMOS but no spatial resample
+    Same as TeledyneCMOS but no spatial or spectral resample
     """
 
     def _set_steps(self):
         super()._set_steps()
         # remove gaussian resample step
+        self.steps.pop(1)
         self.steps.pop(2)
 
     def _make_ones(self, signal):
