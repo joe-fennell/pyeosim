@@ -268,7 +268,7 @@ class TCMOS_test(TeledyneCMOS):
         super()._set_steps()
         # remove gaussian resample step
         self.steps.pop(1)
-        self.steps.pop(2)
+        # self.steps.pop(2)
 
     def _make_ones(self, signal):
         # ones array of same shape as final signal
@@ -277,5 +277,5 @@ class TCMOS_test(TeledyneCMOS):
         for dim in signal.dims:
             if dim not in ['x', 'y', 'wavelength']:
                 signal = signal.isel({dim: 0})
-        # out = self.spectral_response.transform(signal)
-        return xarray.ones_like(signal)
+        out = self.spectral_response.transform(signal)
+        return xarray.ones_like(out)
