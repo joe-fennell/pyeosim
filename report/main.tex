@@ -346,20 +346,22 @@ Atmospheric Conditions were selected for two UK cities at different latitudes (T
 \end{table}
 
 \subsection{Dynamic Range Estimation}
-Reflectance imagery was obtained from 2ExcelGeo and a small subset was selected to contain a range of vegetation types (mown grass and mature deciduous trees) and other landcovers including tarmac roads, bare earth and domestic structures. 
+Reflectance imagery collected by an aerial platform was used for dynamic range estimation. A small subset was selected to contain a range of vegetation types (mown grass and mature deciduous trees) and other landcovers including tarmac roads, bare earth and domestic structures. As expected, vegetation had low reflectance in human visible wavelengths (<5\%) with higher reflectances in the Near Infra Red (Figure \ref{fig:reflectances1}).
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{TreeView_plots/1_input_reflectance.png}
-    \caption{Reflectance estimates of a scene over Milton Keynes. Colour scale is in log units}
+    \caption{Reflectance estimates of a scene over Milton Keynes at 442nm, 554nm, 698nm, 842nm. Colourscale is in log units}
     \label{fig:reflectances1}
 \end{figure}
 
-\section{Sample Results}
-\subsection{Image Generation}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{TreeView_plots/2_input_reflectance_histogram.png}
+    \caption{2D Histogram of reflectances per waveband for the scene in Figure \ref{fig:reflectances1}}
+    \label{fig:reflectances_hist}
+\end{figure}
 
-=
-\subsection{Demonstration 1: Effect of Dark Noise level}
-=
+Reflectances values were 
 
 \section{Conclusions}
 \begin{enumerate}
