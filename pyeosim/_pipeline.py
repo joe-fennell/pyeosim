@@ -1,29 +1,70 @@
 import os
+import numpy as np
+import json
 
 
 class GenericTransformer(object):
     """
-    A generic base class. Child subclasses should implement a 'set_steps'
-    method that assigns a list of tuples to the 'named_steps' attribute.
+    A generic base class. Child subclasses should implement a '_set_steps'
+    method that assigns a list of tuples to the 'steps' attribute.
     """
 
     def __init__(self):
         self.store_steps = False
         self.step_outputs = {}
+        self.steps = []
         self._fitted = False  # flag to check if fixed pattern noise generated
 
     def fit(self, signal):
-        self.set_steps()
+        """
+        Sets all steps in the model
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
+        """
+        self._set_steps()
         self._fitted = True
-        pass
 
     def transform(self, signal):
+        """
+        Applies all steps specificied in the 'steps' list
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
+
+        Returns
+        -------
+        new_signal : xarray.DataArray
+            transformed values
+        """
+        try:
+            signal = signal.transpose('y', 'x', ...)
+        except ValueError:
+            raise ValueError('x or y coordinate missing')
         if self._fitted:
             return self._apply_steps(signal)
         else:
             raise RuntimeError('Transformer Instance not fitted')
 
     def fit_transform(self, signal):
+        """
+        Calls 'fit' method then applies all steps specificied in the 'steps'
+        list
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            An xarray instance of measurements
+
+        Returns
+        -------
+        new_signal : xarray.DataArray
+            transformed values
+        """
         self.fit(signal)
         return self.transform(signal)
 
@@ -36,6 +77,16 @@ class GenericTransformer(object):
     def get_params(self, numeric_only=False):
         """
         Returns the configuration params for the transfomer
+
+        Parameters
+        ----------
+        numeric_only : bool, optional
+            flag returns only numeric type parameters
+
+        Returns
+        -------
+        parameters : dict
+            dictionary of parameter values keyed by name
         """
         def only_numeric(params):
             def isnumeric(x):
@@ -55,6 +106,20 @@ class GenericTransformer(object):
             return only_numeric(params)
         return params
 
+    def apply_step(self, signal, step_name):
+        """
+        Apply a named step to a signal array
+
+        Parameters
+        ----------
+        signal : xarray.DataArray
+            signal array
+        step_name : str
+            name of step to apply
+        """
+        step = self.steps[step_name]
+        return signal.pipe(step[1], **step[2])
+
     def _apply_steps(self, signal):
         # metadata copying and storag
         meta = signal.attrs.copy()
@@ -62,7 +127,7 @@ class GenericTransformer(object):
         if self.store_steps:
             for step in self.steps:
                 _signal = _signal.pipe(step[1], **step[2]).compute()
-                self.step_outputs[step[0]] = _signal
+                self.step_outputs[step[0]] = _signal.copy()
         else:
             for step in self.steps:
                 _signal = _signal.pipe(step[1], **step[2])
@@ -70,7 +135,9 @@ class GenericTransformer(object):
 
         name = self.__class__.__name__
         k = '{}_sensor_simulation'.format(name)
-        meta[k] = str(self.get_params())
+        meta[k] = json.dumps(self.get_params(),
+                             default=lambda o: '<Not stored>')
+        # meta[k] = str(self.get_params())
         _signal.attrs = meta
         return _signal
 
@@ -115,14 +182,21 @@ class GenericTransformer(object):
 
         def fmt_params(name, val):
             try:
+                # array-like
                 val = list(val.values)
-                val = '[{:.2f},...]'.format(val[0])
+                val = '[{:.2f}, ...]'.format(np.ravel(val)[0])
             except AttributeError:
-                if type(val) != str:
+                # float, int or numeric string
+                try:
+                    val = float(val)
                     if (val > 100) | (val < .01):
                         val = '{:.2e}'.format(val)
                     else:
                         val = '{:.2f}'.format(val)
+                # finally, just replace with NA
+                except:
+                    val = 'N/A'
+
             return '{} = '.format(name) + val
 
         def fmt_empty_step(val):

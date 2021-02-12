@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyeosim",  # Replace with your own username
-    version="0.0.1",
+    version="0.0.2",
     author="Joseph T. Fennell",
     author_email="info@joefennell.org",
     description="Python Earth Observation Simulator",
@@ -20,6 +20,7 @@ setuptools.setup(
     install_requires=[
           'xarray',
           'pyyaml',
+          'scipy',
           'numpy',
           'dask',
           'Click'

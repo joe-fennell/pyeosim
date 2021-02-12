@@ -2,6 +2,8 @@
 Checking decorators for different function types
 """
 import functools
+import numpy as np
+import xarray
 
 
 def spectral_index(func):
@@ -65,6 +67,36 @@ def spectral_response(func):
         if 'wavelength' in signal.dims:
             return func(*args, **kwargs)
         raise AttributeError('First argument does not have wavelength coord')
+    return wrapper
+
+
+def sklearn_pixelwise(func, feature_dim=['band']):
+    """
+    Prepares xarray for sklearn and returns in xarray format
+    """
+    @functools.wraps(func)
+    def wrapper(array, *args, **kwargs):
+        # before passing to func make into 2D array
+        subset = array.stack(obs=tuple(['y', 'x']),
+                             feats=feature_dim).dropna('obs')
+        mask = ~subset.isnull().isel(feats=0)
+        # make a new copy of array
+        new_vals = func(subset, *args, **kwargs)
+
+        if new_vals.ndim > 1:
+            new_shape = (subset.shape[0], new_vals.shape[1])
+            out = xarray.DataArray(np.empty(new_shape) * np.nan,
+                                   coords={'obs': subset.obs,
+                                           'output': np.arange(new_shape[1])},
+                                   dims=['obs', 'output'])
+        else:
+            new_shape = subset.shape[0]
+            out = xarray.DataArray(np.empty(new_shape) * np.nan,
+                                   coords={'obs': subset.obs},
+                                   dims='obs')
+
+        out[mask] = new_vals
+        return out.unstack()
     return wrapper
 
 

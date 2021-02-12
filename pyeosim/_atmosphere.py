@@ -1,5 +1,6 @@
 from ._decorators import spectral_response, reflectance_lookup
 import xarray
+import json
 
 
 class LUT(object):
@@ -13,9 +14,17 @@ class LUT(object):
         """
         Parameters
         ----------
-        LUT_path : str
+        LUT_object : str, optional
+            An xarray lookup table which must have at least
+            wavelength and rho
+        LUT_path : str, optional
             A path to an xarray lookup table which must have at least
             wavelength and rho
+        parameter_subsets : str, optional
+            A dictionary specifying subsets of the xarray object. Refer to
+            xarray docs for more information
+        chunks : int or list, optional
+            chunking parameter passed to xarray.open_dataset
         """
 
         @reflectance_lookup
@@ -55,7 +64,9 @@ class LUT(object):
         new = apply_LUT(signal, self.LUT)
         new_meta = {
             'input_signal_meta': meta,
-            'atmospheric_simulation': str(self.LUT.attrs)
+            'atmospheric_simulation': json.dumps(self.LUT.attrs,
+                                                 default=lambda o: '<Not stored>')
+            # 'atmospheric_simulation': str(self.LUT.attrs)
             }
         new.attrs = new_meta
         return new

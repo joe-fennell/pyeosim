@@ -4,101 +4,13 @@ writing new subclasses of GenericTransformer in 'sensor' submodule.
 """
 
 import numpy
-import xarray
+# import xarray
 from ._decorators import return_equal_xarray
-
-
-def voltage_to_DN(voltage, v_ref, adc_gain, bit_depth):
-    """
-    Model a linear response ADC.
-
-    Parameters
-    ----------
-    voltage : xarray.DataArray
-        voltage
-    v_ref : float
-        reference voltage of ADC
-    adc_gain : float
-        ADC gain
-    bit_depth : int
-        ADC depth
-
-    Returns
-    -------
-    DN : xarray.DataArray
-        simulated digital number values
-    """
-    max_DN = numpy.int(2**bit_depth - 1)
-    DN = (adc_gain * (v_ref - voltage)).round()
-    DN = DN.where(DN <= max_DN, DN)
-    return DN.where(DN > 0, 0)
-
-
-def electron_to_voltage(electron_count, v_ref, sense_node_gain,
-                        full_well):
-    """
-    Converts electrons (charge) to voltage
-
-    Parameters
-    ----------
-    electron_count : xarray.DataArray
-        charge or electron count
-    v_ref : float
-        reference voltage
-    sense_node_gain : float
-        gain in V/e-
-    full_well : float
-        max numberof electrons per pixel
-
-    Returns
-    -------
-    voltage : xarray.DataArray
-        voltage of sensor
-    """
-    # truncate at full well
-    e = electron_count.round().where(electron_count <= full_well, full_well)
-    return v_ref - e * sense_node_gain
-
-
-def electron_to_voltage_ktc(electron_count, v_ref, sense_node_gain,
-                            full_well, temperature, sense_node_capacitance):
-    """
-    Converts charge to voltage with ktc reset noise (lognormal)
-    """
-    v_ref = add_ktc_noise(v_ref * xarray.ones_like(electron_count),
-                          temperature, sense_node_capacitance)
-    e = electron_count.round().where(electron_count <= full_well, full_well)
-    return v_ref - e * sense_node_gain
-
-
-def add_ktc_noise(voltage, temperature, sense_node_capacitance):
-    """
-    add kTC noise
-
-    Parameters
-    ----------
-    voltage : xarray.DataArray
-        voltage array
-    temperature : float
-        t in kelvin
-    sense_node_capacitance : float
-        V/e-
-
-    Returns
-    -------
-    voltage : xarray.DataArray
-        new voltage
-    """
-    kb = 1.3806e-23  # boltzmann constant
-    sigma = numpy.sqrt((kb * temperature) / sense_node_capacitance)
-    return voltage + (numpy.random.lognormal(0,
-                                             sigma**2,
-                                             size=voltage.shape) - 1)
 
 
 def add_column_offset(voltage, offset):
     """
-    Adds the column offset noise to voltage
+    Adds the column offset noise to voltage array
 
     Parameters
     ----------
@@ -115,28 +27,9 @@ def add_column_offset(voltage, offset):
     return voltage + offset
 
 
-def apply_source_follower_gain(voltage, source_follower_gain):
+def add_dark_signal(electrons, dark_current, integration_time, dsnu):
     """
-    Applies source follower voltage amplification (noise free)
-
-    Parameters
-    ----------
-    voltage : xarray.DataArray
-        voltage array
-    source_follower_gain : float
-        source follower gain
-
-    Returns
-    -------
-    voltage : xarray.DataArray
-        new voltage
-    """
-    return voltage * source_follower_gain
-
-
-def add_dark_noise(electrons, dark_current, integration_time, dcfpn):
-    """
-    Adds photon dark noise
+    Adds dark current to electron count
 
     Parameters
     ----------
@@ -146,79 +39,23 @@ def add_dark_noise(electrons, dark_current, integration_time, dcfpn):
         dark current in e-/s/pixel
     integration_time : float
         integration period in seconds
-    dcfpn : xarray.DataArray
-        dark current fixed pattern distribution
+    dsnu : xarray.DataArray
+        dark current fixed pattern noise distribution
     """
-    I_dc = dark_current * integration_time
-    I_shot = numpy.random.poisson(I_dc, size=electrons.shape)
-    I_dark = I_shot + I_shot * dcfpn
-    return electrons + I_dark
-
-
-def DCFPN(ones, dark_current, integration_time, dark_factor):
-    """
-    Calculates the dark current fixed pattern noise
-
-    This assumes a log-Normal distribution suitable for short integration times
-
-    Parameters
-    ----------
-    ones : xarray.DataArray
-        array of ones in same shape as output array
-    dark_current : float
-        sensor level mean dark current
-        in e-/s/pixel
-    integration_time : float
-        integration time of exposure
-    dark_factor : float
-        dark current FPN factor range(0...1)
-
-    Returns
-    -------
-    electron_count : xarray.DataArray
-        updated electron count
-    """
-
-    sigma = integration_time * dark_current * dark_factor
-    return ones * numpy.random.lognormal(0, sigma**2, size=ones.shape)
-
-
-def add_prnu(electrons, prnu):
-    """
-    Adds PRNU
-
-    Parameters
-    ----------
-    electrons : xarray.DataArray
-        electrons array
-    prnu : xarray.DataArray
-        fixed pattern noise array
-    """
-    return electrons + electrons * prnu
-
-
-def PRNU(ones, prnu_factor):
-    """
-    Calculate the Photon Response Non-Uniformity
-
-    Parameters
-    ----------
-    ones : xarray.DataArray
-        array of ones in same shape as output array
-    prnu_factor : float
-        Manufacturer quoted PRNU
-
-    Returns
-    -------
-    prnu : xarray.DataArray
-        array of same shape as ones
-    """
-    return ones * numpy.random.normal(0, prnu_factor**2, size=ones.shape)
+    # Generate dark electron quantity
+    n_dsig = dark_current * integration_time
+    # make an empty copy of the electrons array to add the shot noise
+    n_dsig_shot = electrons.copy()
+    # convert mean I_dsig mean electron vals to poisson random process
+    n_dsig_shot.values = numpy.random.poisson(n_dsig, size=electrons.shape)
+    # add DSNU noise
+    n_dark = n_dsig_shot + n_dsig_shot * dsnu
+    return (electrons + n_dark).round()
 
 
 def add_gaussian_noise(electron_count, sigma):
     """
-    Model dark/readout noise as guassian additive noise.
+    Adds a zero-mean gaussian to electron count
 
     Parameters
     ----------
@@ -237,26 +74,10 @@ def add_gaussian_noise(electron_count, sigma):
     return (electron_count + gaus_noise).round()
 
 
-def photon_to_electron(photon_count, Q_e):
-    """
-    Convert photon count to electron count using sensor quantum efficiency.
-    Taking average over all wavelengths
-
-    Parameters
-    ----------
-    photon_count : xarray.DataArray
-        photon count instance
-    Q_e : float, array-like
-        float in range 0-1 specifying photon conversion rate or xarray with
-        same wavelength sampling as photon_count
-    """
-    return (photon_count * Q_e).round()
-
-
-@return_equal_xarray
 def add_photon_noise(photon_count):
     """
-    Sample a poisson distribution using input values as mean
+    Converts photon count to a Poisson random process simulating photon shot
+    noise.
 
     Parameters
     ----------
@@ -268,20 +89,145 @@ def add_photon_noise(photon_count):
     photon_estimate : xarray.DataArray
         photon count instance
     """
-    return photon_count.map_blocks(numpy.random.poisson)
+    @return_equal_xarray
+    def poisson_rv(ar):
+        return numpy.random.poisson(ar)
+    # convert photon means to a poisson random process
+    return photon_count.map_blocks(poisson_rv)
+
+
+def add_prnu(electrons, prnu):
+    """
+    Adds Photon Response Non-Uniformity to electrons
+
+    Parameters
+    ----------
+    electrons : xarray.DataArray
+        electrons array
+    prnu : xarray.DataArray
+        fixed pattern noise array
+    """
+    # add photo non-uniformity
+    return (electrons + electrons * prnu).round()
+
+
+def CONU(ones, offset_factor):
+    """
+    Generates column offset non uniformity array
+
+    Parameters
+    ----------
+    ones : xarray.DataArray
+        ones of same shape as image
+    offset_factor : float
+        column offset factor
+
+    Returns
+    -------
+    CONU : xarray.DataArray
+        Column offset non uniformity array with zero mean
+    """
+    fpn = ones.isel(band=0) * numpy.random.normal(0, offset_factor,
+                                                  size=ones.isel(band=0).shape)
+    # drop band and band_name coords if exist
+    for var in ['band', 'band_name']:
+        try:
+            fpn = fpn.drop_vars(var)
+        except ValueError:
+            pass
+    return fpn
+
+
+def DSNU(ones, dark_current, integration_time, dark_factor):
+    """
+    Calculates the dark signal non-uniformity array.
+
+    Note that dark_current should be per actual pixel, not per pixel subarray
+
+    This assumes a log-Normal distribution suitable for short integration times
+    of less than 100 seconds
+
+    Parameters
+    ----------
+    ones : xarray.DataArray
+        array of ones in same shape as output array
+    dark_current : float
+        sensor level mean dark current
+        in e-/s/pixel
+    integration_time : float
+        integration time of exposure
+    dark_factor : float
+        dark current FPN factor range(0...1)
+
+    Returns
+    -------
+    electron_count : xarray.DataArray
+        updated electron count
+    """
+    sigma = integration_time * dark_current * dark_factor
+    # multiply by ones array to convert numpy array to xarray
+    fpn = ones * numpy.random.lognormal(0, sigma, size=ones.shape)
+    # subtract off the mean to generate a zero-mean distribution
+    return fpn - fpn.mean()
+
+
+def electron_to_voltage(electron_count, v_ref, sense_node_gain,
+                        full_well, read_noise):
+    """
+    Converts electrons (charge) to voltage by simulating a sense node with a
+    fixed v_ref
+
+    Parameters
+    ----------
+    electron_count : xarray.DataArray
+        charge or electron count
+    v_ref : float
+        reference voltage
+    sense_node_gain : float
+        gain in V/e-
+    full_well : int
+        max numberof electrons per pixel
+    read_noise : int
+        read noise in electrons per channel
+
+    Returns
+    -------
+    voltage : xarray.DataArray
+        voltage of sensor
+    """
+    # truncate at full well
+    e = electron_count.where(electron_count < full_well, full_well)
+    # add read noise
+    e = add_gaussian_noise(e, read_noise).round()
+    return v_ref * (e * sense_node_gain)
+    # return v_ref - (e * sense_node_gain)
+    # return e * sense_node_gain
+
+
+def energy_to_quantity(energy):
+    """
+    Convert energy properties to quanta
+
+    Parameters
+    ----------
+    ar : xarray.DataArray
+        energy in J
+    """
+    hc = 1.98644586e-25  # J m
+    lambda_ = _nm_to_m(energy.wavelength)
+    return (lambda_/hc) * energy
 
 
 def photon_mean(flux, pixel_area, integration_time):
     """
-    Convert sensor irradiance (wavelength in nm, irradiance in W m-2)
-    to photon count (poisson lambda coefficient).
+    Convert sensor photon flux density to photon count at sensor
 
     Parameters
     ----------
     flux : xarray.DataArray
-        pixel flux (photons/second/m2)
+        pixel flux density (photons/second/m2)
     pixel_area : float
-        area in microns
+        area in microns 2
     integration_time : float
         exposure time in seconds
 
@@ -293,67 +239,119 @@ def photon_mean(flux, pixel_area, integration_time):
     return flux * integration_time * _microns2_to_m2(pixel_area)
 
 
-def irradiance_to_flux(irradiance):
+def photon_to_electron(photon_count, Q_E):
     """
-    Convert xarray spectral object (wavelength in nm, irradiance in W m-2)
-    to photon flux using hc=1.99e-25
+    Convert photon count to electron count using sensor quantum efficiency.
+    Taking average over all wavelengths
 
     Parameters
     ----------
-    ar : xarray.DataArray
-        radiance
+    photon_count : xarray.DataArray
+        photon count instance
+    Q_E : float, array-like
+        float in range 0-1 specifying photon conversion rate or xarray with
+        same wavelength sampling as photon_count
     """
-    hc = 1.99e-25  # J m
-    lambda_ = _nm_to_m(irradiance.wavelength)
-    return (lambda_/hc) * irradiance
+    return (photon_count * Q_E).round()
 
 
-def radiance_to_irradiance(radiance, altitude):
+def PRNU(ones, prnu_factor):
     """
-    Convert radiance (W sr-1). Only an approximation for nadir sensor
+    Calculate the Photo Response Non-Uniformity
+
+    Parameters
+    ----------
+    ones : xarray.DataArray
+        array of ones in same shape as output array
+    prnu_factor : float
+        Manufacturer quoted PRNU in range 0...1
+
+    Returns
+    -------
+    prnu : xarray.DataArray
+        array of same shape as ones
+    """
+    return ones * numpy.random.normal(0, prnu_factor, size=ones.shape)
+
+
+def radiance_to_irradiance_2(radiance, lens_diameter, focal_length):
+    """
+    Convert radiance (W m-2 sr-1) to irradiance of sensor based on lens.
+    Only an approximation for nadir sensor.
+    Forshortening is not taken into account.
+    Does not take into account cos^4 roll-off
 
     Parameters
     ----------
     radiance : xarray.DataArray
         at sensor radiance
-    altitude : float
-        sensor altitude (m)
+    lens_diameter : float
+        diameter of optic in metres
+    focal_length : float
+        focal length of optic in metres
 
     Returns
     -------
     irradiance : xarray.DataArray
         sensor irradiance
     """
-    # ground sample distance in metres
-    gsd = float(radiance.x[1] - radiance.x[0])
-    # sensor altitude m
-    IFOV = numpy.arctan2(gsd, altitude)
-    return radiance * IFOV
+    return radiance * (numpy.pi / 4) * ((lens_diameter / focal_length) ** 2)
 
 
-def band_Qe(SRFs, quantum_efficiency):
+# def radiance_to_irradiance(radiance, altitude):
+#     """
+#     Convert radiance (W sr-1). Only an approximation for nadir sensor.
+#     Forshortening is not taken into account.
+#
+#     Parameters
+#     ----------
+#     radiance : xarray.DataArray
+#         at sensor radiance
+#     altitude : float
+#         sensor altitude (m)
+#
+#     Returns
+#     -------
+#     irradiance : xarray.DataArray
+#         sensor irradiance
+#     """
+#     # pixel ground area in m2
+#     A_ground = float(radiance.x[1] - radiance.x[0])**2
+#     # sensor altitude m
+#     # This approach treats the pixel value as a point source with a measured
+#     # radiant intensity (integrate out area: I = L A_ground
+#     I_ = A_ground * radiance
+#     # use inverse square rule to convert to irradiance:
+#     # H = (I \cos \theta)/r**2
+#     # This version assumes satellite is nadir to pixel (cos 0 = 1)
+#     return I_ / (altitude**2)
+
+
+def voltage_to_DN(voltage, v_ref, bit_depth):
     """
-    Calculates weighted mean of the quantum efficiency in
-    each spectral channel.
+    Model a linear response ADC.
 
     Parameters
     ----------
-    SRFs : dict
-        Spectral Response Function dictionary
-    quantum_efficiency : xarray.DataArray
-        Q_e with wavelength coordinate
+    voltage : xarray.DataArray
+        voltage
+    v_ref : float
+        reference voltage of ADC
+    bit_depth : int
+        ADC depth
 
     Returns
     -------
-    Q_e : xarray.DataArray
-        Weighted mean quantum efficiency for each band
+    DN : xarray.DataArray
+        simulated digital number values
     """
-    bands = numpy.arange(len(SRFs))
-    QEs = []
-    for srf in SRFs.values():
-        weight = srf/srf.integrate('wavelength')
-        QEs.append(float((quantum_efficiency * weight).sum()))
-    return xarray.DataArray(QEs, [('band', bands)])
+    max_DN = numpy.int(2**bit_depth - 1)
+    # DN = max_DN * (v_ref - voltage)
+    DN = max_DN * (voltage / v_ref)
+    # DN = (voltage * (2**bit_depth))/v_ref
+    # DN = (voltage / v_ref) * (2**bit_depth)
+    DN = DN.round().where(DN < max_DN, max_DN)
+    return DN.round().where(DN > 0, 0)
 
 
 # Internal functions

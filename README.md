@@ -20,6 +20,9 @@ PIP installation not supported yet - run all code in the root of the repository
 - implement a scoring pipeline
 - full code review
 
+## Updates
+- Added a reflectance pipeline in new submodule postprocess
+
 ## References:
 https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7878623
 
