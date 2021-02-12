@@ -345,8 +345,9 @@ Atmospheric Conditions were selected for two UK cities at different latitudes (T
     \label{tab:atmos1}
 \end{table}
 
-\subsection{Dynamic Range Estimation}
-Reflectance imagery collected by an aerial platform was used for dynamic range estimation. A small subset was selected to contain a range of vegetation types (mown grass and mature deciduous trees) and other landcovers including tarmac roads, bare earth and domestic structures. As expected, vegetation had low reflectance in human visible wavelengths (<5\%) with higher reflectances in the Near Infra Red (Figure \ref{fig:reflectances1}).
+\subsection{Input Range Estimation}
+Reflectance imagery collected by an aerial platform was used for dynamic range estimation. A small subset was selected to contain a range of vegetation types (mown grass and mature deciduous trees) and other landcovers including tarmac roads, bare earth and domestic structures. As expected, vegetation had low reflectance in human visible wavelengths (<5\%) with higher reflectances in the Near Infra Red (Figure \ref{fig:reflectances1}).The range of reflectance values was lowest in the short wavelength and highest at longer wavelengths (Figure \ref{fig:reflectances_hist}.A).
+
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{TreeView_plots/1_input_reflectance.png}
@@ -356,13 +357,21 @@ Reflectance imagery collected by an aerial platform was used for dynamic range e
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{TreeView_plots/2_input_reflectance_histogram.png}
-    \caption{2D Histogram of reflectances per waveband for the scene in Figure \ref{fig:reflectances1}}
+    \includegraphics[width=\textwidth]{TreeView_plots/3_integrated_sensor_radiance.png}
+    \caption{A. 2D Histogram of reflectance per waveband for the scene in Figure \ref{fig:reflectances1}. Colourscale indicates log pixel count. B. The mean scene radiance (across all pixels) for the same scene, as a function of time (Day of Year) and space (City) using the atmospheric models described above}
     \label{fig:reflectances_hist}
 \end{figure}
 
-Reflectances values were 
+Reflectance values were converted to at-sensor radiance using the atmospheric models (described in previous section). The mean radiance values across all spatial pixels was integrated w.r.t. wavelength to give the mean radiated signal per unit ground area. This indicated approximately a 1 $W sr^{-1} m^{-2}$ increase in radiance in Milton Keynes compared to Inverness at equivalent Day of Year (Figure \ref{fig:reflectances_hist}.B). Predicted mean radiance values from a lambertian source increased from $4.5 W sr^{-1} m^{-2}$ on the 1st March in Inverness to $10.8 W sr^{-1} m^{-2}$ in Milton Keynes on the 22nd of June.
 
+In order to estimate the measurement range of each band for vegetation signals, the at-sensor radiance values for the scene were masked for vegetation pixels only (NDVI $>$ 0.2). Using all 10 atmospheric scenarios, the 2.5\% and 97.5\% quantiles were retrieved for each spectral band. This provided the minimum and maximum expected at-sensor radiance, for each spectral band.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{TreeView_plots/5_minMax_radiance.png}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
 \section{Conclusions}
 \begin{enumerate}
 \item The simulation pipeline generates linear simulations efficiently but needs a full code review. Other potential noise sources that have not been modelled should be considered and included if thought to be significant
