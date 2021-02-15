@@ -364,20 +364,45 @@ Reflectance imagery collected by an aerial platform was used for dynamic range e
 
 Reflectance values were converted to at-sensor radiance using the atmospheric models (described in previous section). The mean radiance values across all spatial pixels was integrated w.r.t. wavelength to give the mean radiated signal per unit ground area. This indicated approximately a 1 $W sr^{-1} m^{-2}$ increase in radiance in Milton Keynes compared to Inverness at equivalent Day of Year (Figure \ref{fig:reflectances_hist}.B). Predicted mean radiance values from a lambertian source increased from $4.5 W sr^{-1} m^{-2}$ on the 1st March in Inverness to $10.8 W sr^{-1} m^{-2}$ in Milton Keynes on the 22nd of June.
 
-In order to estimate the measurement range of each band for vegetation signals, the at-sensor radiance values for the scene were masked for vegetation pixels only (NDVI $>$ 0.2). Using all 10 atmospheric scenarios, the 2.5\% and 97.5\% quantiles were retrieved for each spectral band by multiplying by the spectral response functions (Figure \ref{fig:srfs}). This provided the minimum and maximum expected at-sensor radiance, for each spectral band.
-
+In order to estimate the measurement range of each band for vegetation signals, the at-sensor radiance values for the scene were masked for vegetation pixels only (NDVI $>$ 0.2). Using all 10 atmospheric scenarios, the 2.5\% and 97.5\% quantiles were retrieved for each spectral band (bandpass responses described in Table \ref{tab:bandpass}) by multiplying the predicted at-sensor radiance values by the spectral response functions (Figure \ref{fig:srfs}). This provided the minimum and maximum expected at-sensor radiance (integrated), for each spectral band.
+\begin{table}
+\centering
+\begin{tabular}{lllll}
+\toprule
+     & \multicolumn{2}{l}{TreeView v0.1} & \multicolumn{2}{l}{TreeView v0.2} \\
+Band & $\lambda$          & FWHM         & $\lambda$          & FWHM         \\
+\midrule
+0    & 445                & 20           & 440                & 20           \\
+1    & 490                & 40           & 480                & 40           \\
+2    & 531                & 10           & 525                & 50           \\
+3    & 560                & 20           & 585                & 50           \\
+4    & 620                & 20           & 630                & 40           \\
+5    & 665                & 30           & 670                & 40           \\
+6    & 700                & 15           & 700                & 15           \\
+7    & 740                & 15           & 740                & 15           \\
+8    & 780                & 15           & 780                & 15           \\
+9    & 865                & 30           & 865                & 30          \\
+\bottomrule
+\end{tabular}
+    \caption{Bandpass responses in nm for TreeView v0.1 and v0.2}
+    \label{tab:bandpass}
+\end{table}
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{TreeView_plots/4_sensor_comparison.png}
-    \includegraphics[width=\textwidth]{TreeView_plots/5_minMax_radiance.png}
+    \includegraphics[width=\textwidth]{TreeView_plots/7_minMaxVeg_radiance.png}
     \caption{Estimated 95\% minimum and maximum radiances per spectral band}
     \label{fig:srfs}
 \end{figure}
+Due to the large range of wavelength-dependent reflectances in the vegetation signal and the differing bandwidths of the proposed TreeView spectral bands, the expected range of radiances across all bands and illumination scenarios was large ($10$--$2300~ mW~sr^{-1}~m^{-2}$, Figure \ref{fig:srfs}). It should be noted that the range only represents diffusing reflectance sources.
+
+\subsection{Sensor Simulation Parameters}
+
+\subsection
+
 \section{Conclusions}
 \begin{enumerate}
-\item The simulation pipeline generates linear simulations efficiently but needs a full code review. Other potential noise sources that have not been modelled should be considered and included if thought to be significant
-\item The evaluation pipeline can be used to test different sensor parameters against spectral index retrieval performance. This will be developed further to score classification performance.
-\item More information is needed for the likely ranges of sensor properties.
+\item
 \end{enumerate}
 
 \bibliography{references}
