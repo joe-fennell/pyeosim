@@ -398,7 +398,11 @@ Band & $\lambda$          & FWHM         & $\lambda$          & FWHM         \\
 Due to the large range of wavelength-dependent reflectances in the vegetation signal and the differing bandwidths of the proposed TreeView spectral bands, the expected range of radiances across all bands and illumination scenarios was large ($10$--$2300~ mW~sr^{-1}~m^{-2}$, Figure \ref{fig:srfs}). It should be noted that the range only represents diffusing reflectance sources.
 
 \subsection{Sensor Simulation Parameters}
-
+The CIS125 in its proposed configuration has both panchromatic (PAN) and multispectral (MSI) channels, each with two different pixel sub-array lengths (PAN: 16 and 32; MSI: 32and 64). For the two initial proposed bandpass combinations, there are therefore 8 sensor configuration combinations to simulate (Table \ref{tab:sim_params})
+\begin{landscape}
+\small
+\include{TreeView_data/sensor_params_1}
+\end{landscape}
 
 \section{Conclusions}
 \begin{enumerate}
@@ -406,11 +410,6 @@ Due to the large range of wavelength-dependent reflectances in the vegetation si
 \end{enumerate}
 
 \bibliography{references}
-\begin{appendix}
-\begin{landscape}
-\small
-\include{TreeView_data/sensor_params_1}
-\end{landscape}
 
-\end{appendix}
+
 \end{document}
