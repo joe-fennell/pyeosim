@@ -364,13 +364,14 @@ Reflectance imagery collected by an aerial platform was used for dynamic range e
 
 Reflectance values were converted to at-sensor radiance using the atmospheric models (described in previous section). The mean radiance values across all spatial pixels was integrated w.r.t. wavelength to give the mean radiated signal per unit ground area. This indicated approximately a 1 $W sr^{-1} m^{-2}$ increase in radiance in Milton Keynes compared to Inverness at equivalent Day of Year (Figure \ref{fig:reflectances_hist}.B). Predicted mean radiance values from a lambertian source increased from $4.5 W sr^{-1} m^{-2}$ on the 1st March in Inverness to $10.8 W sr^{-1} m^{-2}$ in Milton Keynes on the 22nd of June.
 
-In order to estimate the measurement range of each band for vegetation signals, the at-sensor radiance values for the scene were masked for vegetation pixels only (NDVI $>$ 0.2). Using all 10 atmospheric scenarios, the 2.5\% and 97.5\% quantiles were retrieved for each spectral band. This provided the minimum and maximum expected at-sensor radiance, for each spectral band.
+In order to estimate the measurement range of each band for vegetation signals, the at-sensor radiance values for the scene were masked for vegetation pixels only (NDVI $>$ 0.2). Using all 10 atmospheric scenarios, the 2.5\% and 97.5\% quantiles were retrieved for each spectral band by multiplying by the spectral response functions (Figure \ref{fig:srfs}). This provided the minimum and maximum expected at-sensor radiance, for each spectral band.
 
 \begin{figure}
     \centering
+    \includegraphics[width=\textwidth]{TreeView_plots/4_sensor_comparison.png}
     \includegraphics[width=\textwidth]{TreeView_plots/5_minMax_radiance.png}
-    \caption{Caption}
-    \label{fig:my_label}
+    \caption{Estimated 95\% minimum and maximum radiances per spectral band}
+    \label{fig:srfs}
 \end{figure}
 \section{Conclusions}
 \begin{enumerate}
