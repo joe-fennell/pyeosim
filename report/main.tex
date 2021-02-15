@@ -12,6 +12,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{natbib}
+\usepackage{lscape}
 
 \newcolumntype{L}{>{$}l<{$}} % math-mode version of "l" column type
 
@@ -398,7 +399,6 @@ Due to the large range of wavelength-dependent reflectances in the vegetation si
 
 \subsection{Sensor Simulation Parameters}
 
-\subsection
 
 \section{Conclusions}
 \begin{enumerate}
@@ -406,5 +406,11 @@ Due to the large range of wavelength-dependent reflectances in the vegetation si
 \end{enumerate}
 
 \bibliography{references}
+\begin{appendix}
+\begin{landscape}
+\small
+\include{TreeView_data/sensor_params_1}
+\end{landscape}
 
+\end{appendix}
 \end{document}
