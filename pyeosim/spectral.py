@@ -138,3 +138,26 @@ class TreeView_2(_SRF):
         self.band_wavelengths = {k: v[0] for (k, v) in band_defs.items()}
         self.band_names = list(self.band_wavelengths.keys())
         return bands_from_step_func(band_defs)
+
+
+class TreeView_3(_SRF):
+    """
+    Version 3b based on the a widened bandpass profile in the vis
+    """
+
+    def _load_srfs(self):
+        band_defs = {
+            'Aerosol': (440, 20),
+            # 'Carotenoids': (480, 40),
+            'PRI_1': (525, 50),
+            'PRI_2': (585, 50),
+            'Chlorophyll_1': (630, 40),
+            'Chlorophyll_2': (670, 40),
+            # 'RedEdge_1': (700, 15),
+            'RedEdge_2': (740, 15),
+            'RedEdge_3': (780, 15),
+            'NIR': (865, 30)
+        }
+        self.band_wavelengths = {k: v[0] for (k, v) in band_defs.items()}
+        self.band_names = list(self.band_wavelengths.keys())
+        return bands_from_step_func(band_defs)
