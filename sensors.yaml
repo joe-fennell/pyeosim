@@ -147,3 +147,77 @@ TreeView_2_PAN_64:
     offset_factor: 0
     bit_depth: 12
     pixel_area: 25
+# 9 TreeView spectral v0.3 MSI16 response
+TreeView_3_MSI_16:
+    TDI_rows: 16
+    spectral_response: TreeView_3()
+    lens_diameter: 0.25
+    sensor_width: 82.2
+    ground_sample_distance: 2
+    pix_per_row: 8196
+    sense_node_gain: 9.43
+    dark_current: 17.8
+    full_well: 106000
+    ccd_vref: 1
+    adc_vref: 1
+    dark_factor: 0
+    prnu_factor: 0
+    offset_factor: 0
+    bit_depth: 12
+    pixel_area: 100
+# 10 TreeView spectral v0.3 MSI32 response
+TreeView_3_MSI_32:
+    TDI_rows: 32
+    spectral_response: TreeView_3()
+    lens_diameter: 0.25
+    sensor_width: 82.2
+    ground_sample_distance: 2
+    pix_per_row: 8196
+    sense_node_gain: 9.43
+    dark_current: 17.8
+    full_well: 106000
+    ccd_vref: 1
+    adc_vref: 1
+    dark_factor: 0
+    prnu_factor: 0
+    offset_factor: 0
+    bit_depth: 12
+    pixel_area: 100
+# 11 TreeView spectral v0.3 PAN32 response
+TreeView_3_PAN_32:
+    TDI_rows: 32
+    spectral_response: TreeView_3()
+    lens_diameter: 0.25
+    psf_fwhm: 2
+    sensor_width: 82.2
+    ground_sample_distance: 1
+    pix_per_row: 16392
+    sense_node_gain: 30.30
+    dark_current: 4.45
+    full_well: 33000
+    ccd_vref: 1
+    adc_vref: 1
+    dark_factor: 0
+    prnu_factor: 0
+    offset_factor: 0
+    bit_depth: 12
+    pixel_area: 25
+# 8 TreeView spectral v0.3 PAN64 response
+TreeView_3_PAN_64:
+    TDI_rows: 64
+    spectral_response: TreeView_3()
+    lens_diameter: 0.25
+    psf_fwhm: 2
+    sensor_width: 82.2
+    ground_sample_distance: 1
+    pix_per_row: 16392
+    sense_node_gain: 30.30
+    dark_current: 4.45
+    full_well: 33000
+    ccd_vref: 1
+    adc_vref: 1
+    dark_factor: 0
+    prnu_factor: 0
+    offset_factor: 0
+    bit_depth: 12
+    pixel_area: 25
