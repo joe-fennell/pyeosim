@@ -58,9 +58,13 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
             res = float(np.abs(signal.x[1]-signal.x[0]))
     # calculate sigma from FWHM
     sigma = (psf_fwhm/2.355)/res
-    dx = int(ground_sample_distance/res)
-    dy = dx
+#     dx = ground_sample_distance/res
+#     dy = dx
     # signal_new = signal.copy()
     # signal_new = signal.map_blocks(apply_gauss_filter)
     signal_new = apply_gaussian(signal)
-    return signal_new.coarsen(x=dx, y=dy, boundary='pad').mean()
+    return signal_new.interp(
+        x=np.arange(signal.x.min(), signal.x.max(), ground_sample_distance),
+        y=np.arange(signal.y.min(), signal.y.max(), ground_sample_distance),
+    )
+    # return signal_new.coarsen(x=dx, y=dy, boundary='pad').mean()
