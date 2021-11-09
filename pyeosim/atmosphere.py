@@ -66,6 +66,3 @@ def LUT_from_file(fpath, common_params={}):
     ar = xarray.concat(out, 'scenario').interpolate_na(dim='wavelength').sortby('rho')
     ar.attrs = common_params
     return LUT(ar)
-
-
-def 
