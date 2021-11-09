@@ -101,7 +101,7 @@ class _SRF(object):
             _min, _max = _min_max(srf)
             wlen = interp(_min, _max)
             wlen_mi = wlen / 1000
-            return _min, _max, list(srf.interp(wavelength=wlen))
+            return _min, _max, list(srf.interp(wavelength=wlen).values)
 
         out = {}
         for name, srf in self.srfs.items():
