@@ -261,7 +261,7 @@ class TeledyneCMOS(GenericTransformer):
 
 class TCMOS_test(TeledyneCMOS):
     """
-    Same as TeledyneCMOS but no spatial or spectral resample
+    Same as TeledyneCMOS but no spatial resample
     """
 
     def _set_steps(self):
