@@ -64,8 +64,8 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
     # signal_new = signal.map_blocks(apply_gauss_filter)
     signal_new = apply_gaussian(signal)
     # normalise by integral
-    old_integrals = signal.integrate(['y', 'x'])
-    new_integrals = signal_new.integrate(['y', 'x'])
+    old_integrals = signal.sum(['y', 'x'])
+    new_integrals = signal_new.sum(['y', 'x'])
     signal_new = (signal_new/new_integrals) * old_integrals
     # interpolate to GSD
     return signal_new.interp(
