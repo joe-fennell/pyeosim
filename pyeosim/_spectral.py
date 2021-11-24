@@ -100,8 +100,7 @@ class _SRF(object):
                 return np.arange(min_wlen, max_wlen+ 2.5, 2.5)
             _min, _max = _min_max(srf)
             wlen = interp(_min, _max)
-            wlen_mi = wlen / 1000
-            return _min, _max, list(srf.interp(wavelength=wlen).values)
+            return _min/1000, _max/1000, list(srf.interp(wavelength=wlen).values)
 
         out = {}
         for name, srf in self.srfs.items():
