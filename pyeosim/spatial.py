@@ -49,7 +49,7 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
     # interpolate out NAs in each spatial axis
     signal = signal.transpose('y', 'x', ...)
     # calculate normalising constant
-    signal_sum = float(signal.sum(['y', 'x']).compute())
+    signal_sum = signal.sum(['y', 'x']).compute().copy()
     # get signal resolution
     try:
         res = signal.attrs['res'][0]
