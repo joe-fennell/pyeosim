@@ -23,7 +23,7 @@ class _SRF(object):
         """
         pass
 
-    def transform(self, signal):
+    def transform(self, signal, normalise=False):
         """
         Performs the convolution with the Spectral Response Function only
 
@@ -31,6 +31,8 @@ class _SRF(object):
         ----------
         signal : list
             iterable of DataArrays covering the range of the SRF
+        normalise : bool, optional
+            if True, response will be divided by integral of the band response
 
         """
         # applies spectral response function to arrays
@@ -51,7 +53,8 @@ class _SRF(object):
             response = signal * sensor
             # response = (signal/self.reflectance_scale_factor) * sensor
             # integrate under response spectrum
-            # estimate response for a 100% reflectance signal
+            # estimate response for a 100% reflectance signal]
+            if normalise:
             # norm = sensor.integrate('wavelength')
             # out = response.integrate('wavelength')/norm
 
