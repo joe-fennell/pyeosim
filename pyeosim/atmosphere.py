@@ -4,7 +4,6 @@ or using the GenericTransformer template
 """
 
 from ._atmosphere import LUT
-from ._decorators import spectral_response
 from .datasets import DATA_PATHS
 import numpy as np
 import os
@@ -124,7 +123,6 @@ class SixSV_atmosphere(object):
         signal : xarray.DataArray
             Spectral reflectance dataset
         """
-        @spectral_response
         def reflectance_to_radiance(signal):
             # this returns the spectral radiance in W m-2 sr-1 micron-1
             # correct integral from micron to nm
@@ -149,7 +147,6 @@ class SixSV_atmosphere(object):
         reflectance : xarray.DataArray
 
         """
-        @spectral_response
         def radiance_to_reflectance(signal):
             S_prime = self._coefs['filter_integral_micron']
             return ((signal - self._coefs['a']) / self._coefs['b']) * S_prime
