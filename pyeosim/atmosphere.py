@@ -151,9 +151,7 @@ class SixSV_atmosphere(object):
             S_prime = self._coefs['filter_integral_micron']
             return ((signal - self._coefs['a']) / self._coefs['b']) * S_prime
 
-        # convert spectral reflectance to reflectance across sensor band
-        signal_sensor = self.srf.transform(signal, normalise=True)
-        return radiance_to_reflectance(signal_sensor)
+        return radiance_to_reflectance(signal)
 
 
 def LUT_from_file(fpath, common_params={}):
