@@ -149,7 +149,7 @@ class SixSV_atmosphere(object):
         """
         def radiance_to_reflectance(signal):
             S_prime = self._coefs['filter_integral_micron']
-            return ((signal - self._coefs['a']) / self._coefs['b']) * S_prime
+            return (((signal / S_prime) - self._coefs['a']) / self._coefs['b'])
 
         return radiance_to_reflectance(signal)
 
