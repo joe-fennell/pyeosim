@@ -55,8 +55,8 @@ class _SRF(object):
             # integrate under response spectrum
             # estimate response for a 100% reflectance signal]
             if normalise:
-            # norm = sensor.integrate('wavelength')
-            # out = response.integrate('wavelength')/norm
+                norm = sensor.integrate('wavelength')
+                out = response.integrate('wavelength')/norm
 
             out = response.integrate('wavelength')
             out.attrs = signal.attrs
