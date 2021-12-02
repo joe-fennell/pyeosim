@@ -23,7 +23,7 @@ class _SRF(object):
         """
         pass
 
-    def transform(self, signal):
+    def transform(self, signal, normalise=False):
         """
         Performs the convolution with the Spectral Response Function only
 
@@ -31,6 +31,8 @@ class _SRF(object):
         ----------
         signal : list
             iterable of DataArrays covering the range of the SRF
+        normalise : bool, optional
+            if True, response will be divided by integral of the band response
 
         """
         # applies spectral response function to arrays
@@ -42,7 +44,7 @@ class _SRF(object):
             return out
 
         @spectral_response
-        def _get_response(signal, sensor):
+        def _get_response(signal, sensor, normalise):
             # interpolate sensor to signal wavelengths (linear)
             sensor = sensor.interp(wavelength=signal.wavelength)
             # deal with any float rounding errors
@@ -51,9 +53,12 @@ class _SRF(object):
             response = signal * sensor
             # response = (signal/self.reflectance_scale_factor) * sensor
             # integrate under response spectrum
-            # estimate response for a 100% reflectance signal
-            # norm = sensor.integrate('wavelength')
-            # out = response.integrate('wavelength')/norm
+            # estimate response for a 100% reflectance signal]
+            if normalise:
+                norm = sensor.integrate('wavelength')
+                out = response.integrate('wavelength')/norm
+                out.attrs = signal.attrs
+                return out
 
             out = response.integrate('wavelength')
             out.attrs = signal.attrs
@@ -69,6 +74,10 @@ class _SRF(object):
                 {'band': np.arange(len(results_dict))})
             new_ds = new_ds.assign_coords(
                 band_name=("band", list(results_dict.keys())))
+            # add central wavelengths as coordinate
+            new_ds = new_ds.assign_coords(
+                wavelength=("band",
+                           list(self.band_wavelengths.values())))
             return new_ds
 
         responses = {}
@@ -83,7 +92,8 @@ class _SRF(object):
             try:
                 range = _min_max(sensor)
                 responses[band] = _get_response(_clip(signal, range),
-                                                _clip(sensor, range))
+                                                _clip(sensor, range),
+                                                normalise)
             except RuntimeError:
                 logging.info('signal is not in range for band {}'.format(band))
                 pass
