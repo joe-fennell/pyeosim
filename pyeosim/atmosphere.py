@@ -104,7 +104,7 @@ class SixSV_atmosphere(object):
         for srf in _srfs:
             self.SixS.wavelength = Py6S.Wavelength(*srf)
             self.SixS.run()
-            _a, _b, _bw = get_correction_coefs(six_s_instance)
+            _a, _b, _bw = get_correction_coefs(self.SixS)
             a.append(_a)
             b.append(_b)
             bw.append(_bw)
