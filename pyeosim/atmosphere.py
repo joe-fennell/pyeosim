@@ -4,7 +4,7 @@ or using the GenericTransformer template
 """
 
 from ._atmosphere import LUT
-from _decorators import spectral_response
+from ._decorators import spectral_response
 from .datasets import DATA_PATHS
 import numpy as np
 import os
