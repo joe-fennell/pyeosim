@@ -128,7 +128,7 @@ class SixSV_atmosphere(object):
         def reflectance_to_radiance(signal):
             # this returns the spectral radiance in W m-2 sr-1 micron-1
             # correct integral from micron to nm
-            S_prime = self._coefs['filter_integral_micron'] / 1000
+            S_prime = self._coefs['filter_integral_micron']
             return ((signal * self._coefs['b']) + self._coefs['a']) * S_prime
 
         # convert spectral reflectance to reflectance across sensor band
@@ -151,7 +151,7 @@ class SixSV_atmosphere(object):
         """
         @spectral_response
         def radiance_to_reflectance(signal):
-            S_prime = self._coefs['filter_integral_micron'] / 1000
+            S_prime = self._coefs['filter_integral_micron']
             return ((signal - self._coefs['a']) / self._coefs['b']) * S_prime
 
         # convert spectral reflectance to reflectance across sensor band
