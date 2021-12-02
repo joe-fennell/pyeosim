@@ -112,7 +112,7 @@ class SixSV_atmosphere(object):
         a = xarray.DataArray(a, coords=[('band', np.arange(len(_srfs)))])
         b = xarray.DataArray(b, coords=[('band', np.arange(len(_srfs)))])
         bw = xarray.DataArray(bw, coords=[('band', np.arange(len(_srfs)))])
-        self.coefs = xarray.Dataset({'a':a, 'b':b, 'filter_integral_micron':bw})
+        self._coefs = xarray.Dataset({'a':a, 'b':b, 'filter_integral_micron':bw})
 
     def transform(self, signal):
         """
