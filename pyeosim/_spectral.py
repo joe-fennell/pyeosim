@@ -57,6 +57,8 @@ class _SRF(object):
             if normalise:
                 norm = sensor.integrate('wavelength')
                 out = response.integrate('wavelength')/norm
+                out.attrs = signal.attrs
+                return out
 
             out = response.integrate('wavelength')
             out.attrs = signal.attrs
