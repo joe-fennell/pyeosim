@@ -72,6 +72,10 @@ class _SRF(object):
                 {'band': np.arange(len(results_dict))})
             new_ds = new_ds.assign_coords(
                 band_name=("band", list(results_dict.keys())))
+            # add central wavelengths as coordinate
+            new_ds = new_ds.assign_coords(
+                band_name=("band",
+                           list(self.band_wavelengths.values())))
             return new_ds
 
         responses = {}
