@@ -57,9 +57,10 @@ class LUT(object):
             if signal.wavelength.max() > LUT.wavelength.max():
                 raise RuntimeError(
                     'Signal max wavelength greater than LUT max.')
-            return LUT.sel(rho=signal,
-                           wavelength=signal.wavelength,
-                           method='nearest').drop_vars('rho')
+            result = LUT.interp(rho=signal,
+                                wavelength=signal.wavelength,
+                                kwargs={'fill_value':None}).drop_vars('rho')
+            return result.where(result>=0, other=0)
         meta = signal.attrs.copy()
         new = apply_LUT(signal, self.LUT)
         new_meta = {

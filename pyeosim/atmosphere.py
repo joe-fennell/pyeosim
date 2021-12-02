@@ -61,7 +61,7 @@ def LUT_from_file(fpath, common_params={}):
                 ('scenario', [sim])
             ])
             out.append(new)
-        except (IndexError, NotADirectoryError):
+        except (IndexError, NotADirectoryError, KeyError):
             pass
     ar = xarray.concat(out, 'scenario').interpolate_na(dim='wavelength').sortby('rho')
     ar.attrs = common_params

@@ -89,6 +89,24 @@ class _SRF(object):
                 pass
         return _concatenate_results(responses)
 
+    def to_6sv(self):
+        """
+        Interpolates the bandpass responses to 2.5nm interval and converts to
+        micron for 6SV
+        """
+        def convert_srf(srf):
+            def interp(min_wlen, max_wlen):
+                # interpolate wavelengths
+                return np.arange(min_wlen, max_wlen+ 2.5, 2.5)
+            _min, _max = _min_max(srf)
+            wlen = interp(_min, _max)
+            return _min/1000, _max/1000, list(srf.interp(wavelength=wlen).values)
+
+        out = {}
+        for name, srf in self.srfs.items():
+            out[name] = convert_srf(srf)
+        return out
+
 
 def bands_from_step_func(step_funcs, min_wavelength=400, max_wavelength=1000):
     """

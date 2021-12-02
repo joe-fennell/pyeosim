@@ -23,7 +23,8 @@ setuptools.setup(
           'scipy',
           'numpy',
           'dask',
-          'Click'
+          'Click',
+          'py6s'
       ],
     scripts=[],
     # entry_points='''
