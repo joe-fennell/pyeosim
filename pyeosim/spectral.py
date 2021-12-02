@@ -1,7 +1,7 @@
 """
 Sentinel 2 simulation tools
 """
-from ._spectral import _SRF, bands_from_step_func, bands_QE
+from ._spectral import _SRF, bands_from_step_func, band_QE
 from .datasets import dload
 
 
