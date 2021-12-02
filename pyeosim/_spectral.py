@@ -44,7 +44,7 @@ class _SRF(object):
             return out
 
         @spectral_response
-        def _get_response(signal, sensor):
+        def _get_response(signal, sensor, normalise):
             # interpolate sensor to signal wavelengths (linear)
             sensor = sensor.interp(wavelength=signal.wavelength)
             # deal with any float rounding errors
@@ -90,7 +90,8 @@ class _SRF(object):
             try:
                 range = _min_max(sensor)
                 responses[band] = _get_response(_clip(signal, range),
-                                                _clip(sensor, range))
+                                                _clip(sensor, range),
+                                                normalise)
             except RuntimeError:
                 logging.info('signal is not in range for band {}'.format(band))
                 pass
