@@ -40,20 +40,19 @@ def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
         # apply in y dim, then in x dim
         ar = xarray.apply_ufunc(gfilter, ar,
                                 input_core_dims=[['y']],
-                                output_core_dims=[['y']],
-                                dask='parallelized',
-                                dask_gufunc_kwargs={'allow_rechunk':True})
+                                output_core_dims=[['y']])
 
         return xarray.apply_ufunc(gfilter, ar,
                                   input_core_dims=[['x']],
-                                  output_core_dims=[['x']],
-                                  dask='parallelized',
-                                  dask_gufunc_kwargs={'allow_rechunk':True})
+                                  output_core_dims=[['x']])
 
     # interpolate out NAs in each spatial axis
-    signal = signal.transpose('y', 'x', ...)
+    # signal = signal.transpose('y', 'x', ...)
+    # precompute the signal array due to issues of using dask chunks with
+    # gaussian filter. There may be support for this directly in dask
+    signal = signal.transpose('y', 'x', ...).compute()
     # calculate normalising constant
-    signal_sum = signal.sum(['y', 'x']).compute().copy()
+    signal_sum = signal.sum(['y', 'x'])
     # get signal resolution
     try:
         res = signal.attrs['res'][0]
