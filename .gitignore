@@ -1,3 +1,6 @@
+*.nc
+!pyeosim/data/test_hyperspectral_vnir_large.nc
+!pyeosim/data/test_hyperspectral_vnir.nc
 #atmospheres/
 # Byte-compiled / optimized / DLL files
 __pycache__/
