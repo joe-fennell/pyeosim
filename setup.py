@@ -25,7 +25,7 @@ setuptools.setup(
         'xlrd',
         'netcdf4',
         'matplotlib'
-    ]
+    ],
     scripts=[],
     classifiers=[
         "Programming Language :: Python :: 3",
