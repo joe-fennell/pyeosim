@@ -18,22 +18,17 @@ class _SRF(object):
         self.srfs = self._load_srfs()
 
     def fit(self, signal):
-        """
-        Method not used but retained for compatibility with SKLearn
+        """Method not used but retained for compatibility with SKLearn
         """
         pass
 
     def transform(self, signal, normalise=False):
-        """
-        Performs the convolution with the Spectral Response Function only
+        """Performs the convolution with the Spectral Response Function only
 
-        Parameters
-        ----------
-        signal : list
-            iterable of DataArrays covering the range of the SRF
-        normalise : bool, optional
-            if True, response will be divided by integral of the band response
-
+        Args:
+            signal: iterable of DataArrays covering the range of the SRF
+            normalise (bool): if True, response will be divided by integral of
+                the band response
         """
         # applies spectral response function to arrays
         def _clip(signal, range):
@@ -100,9 +95,14 @@ class _SRF(object):
         return _concatenate_results(responses)
 
     def to_6sv(self):
-        """
-        Interpolates the bandpass responses to 2.5nm interval and converts to
-        micron for 6SV
+        """Generates 6SV-readable SRFs
+
+        Interpolates the bandpass responses to 2.5nm interval and converts
+        to micron for 6SV
+
+        Returns:
+            dictionary of tuples
+            {band_name: (min_wavelength, max_wavelength, responses)}
         """
         def convert_srf(srf):
             def interp(min_wlen, max_wlen):
@@ -119,23 +119,18 @@ class _SRF(object):
 
 
 def bands_from_step_func(step_funcs, min_wavelength=400, max_wavelength=1000):
-    """
+    """Generates SRF dictionary.
+
     Generates a dictionary of spectral response functions using the mean
     value and bandwidth.
 
-    Parameters
-    ----------
-    step_funcs : dict
-        dictionary in format {'band_name': (central_wavelength, band_width,
-        transmission)}
-    min_wavelength : float
-        minimum wavelength to evaluate in nm
-    max_wavelength : float
-        maximum wavelength to evaluate in nm
+    Args:
+        step_funcs (dict): dictionary in format
+            {'band_name': (central_wavelength, band_width, transmission)}
+        min_wavelength (float): minimum wavelength to evaluate in nm
+        max_wavelength (float): maximum wavelength to evaluate in nm
 
-    Returns
-    -------
-    srfs : dict
+    Returns:
         spectral response funcs in format {'band_name': xarray.DataArray}
     """
     out = {}
@@ -159,20 +154,14 @@ def bands_from_step_func(step_funcs, min_wavelength=400, max_wavelength=1000):
 
 
 def band_QE(SRFs, quantum_efficiency):
-    """
-    Calculates weighted mean of the quantum efficiency in
-    each spectral channel.
+    """Calculates weighted mean of the quantum efficiency in each band.
 
-    Parameters
-    ----------
-    SRFs : dict
-        Spectral Response Function dictionary
-    quantum_efficiency : xarray.DataArray, list
-        Q_E with wavelength coordinate or a list of Q_Es per band
+    Args:
+        SRFs (dict): Spectral Response Function dictionary
+        quantum_efficiency: Q_E with wavelength coordinate or a list of Q_Es
+            per band
 
-    Returns
-    -------
-    Q_E : xarray.DataArray
+    Returns:
         Weighted mean quantum efficiency for each band
     """
     # numerical index for each band

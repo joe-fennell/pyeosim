@@ -6,10 +6,13 @@ from .datasets import dload
 
 
 class Sentinel2A(_SRF):
-    """
+    """Sentinel 2A - all spectral bands.
+
     Simulates the Sentinel 2A satellite using SRF values published by ESA (ref:
     COPE-GSEG-EOPG-TN-15-0007) and estimates of the PSF properties
     (https://doi.org/10.3390/rs8060488).
+
+
     """
 
     def _load_srfs(self):
@@ -29,7 +32,8 @@ class Sentinel2A(_SRF):
 
 
 class Sentinel2B(_SRF):
-    """
+    """Sentinel 2B - all bands.
+
     Simulates the Sentinel 2B satellite
     """
 
@@ -50,7 +54,8 @@ class Sentinel2B(_SRF):
 
 
 class Sentinel2VNIR(_SRF):
-    """
+    """Sentinel 2A - vis-VNIR only.
+
     Hypothetical satellite with spectral responses equivalent to vis-NIR
     Sentinel 2
     """
@@ -76,7 +81,8 @@ class Sentinel2VNIR(_SRF):
 
 
 class SuperDove(_SRF):
-    """
+    """SuperDove
+
     Super Dove estimated spectral response digitised from published plots
     """
 
@@ -96,8 +102,7 @@ class SuperDove(_SRF):
         return vals
 
 class TreeView_1(_SRF):
-    """
-    Version 2 based on MRD specifications
+    """TreeView Version 1
     """
 
     def _load_srfs(self):
@@ -118,8 +123,9 @@ class TreeView_1(_SRF):
         return bands_from_step_func(band_defs)
 
 class TreeView_2(_SRF):
-    """
-    Version 3 based on the a widened bandpass profile in the vis
+    """TreeView Version 2
+
+    Version 2 based on the a widened bandpass profile in the vis
     """
 
     def _load_srfs(self):
@@ -141,8 +147,9 @@ class TreeView_2(_SRF):
 
 
 class TreeView_3(_SRF):
-    """
-    Version 3b based on the a widened bandpass profile in the vis
+    """TreeView Version 3
+
+    As for v2 but without Carotenoids and RE1 bands
     """
 
     def _load_srfs(self):

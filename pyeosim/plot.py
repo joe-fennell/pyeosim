@@ -6,13 +6,14 @@ import numpy as np
 
 
 def rgb(open_datafile, return_array=False, **imshow_kwargs):
-    """
+    """Make an RGB image from a 3 channel array.
+
     Get values and apply dtype conversion and histogram equalization
 
-    Parameters
-    ----------
-    open_datafile : xarray.DataSet or xarray.DataArray
-        raster dataset or DataArray
+    Args:
+        open_datafile: raster dataset or DataArray
+        return_array (bool): if True, returns a numpy array of image plot
+        **imshow_kwargs: passed directly to matplotlib imshow
     """
     ar = open_datafile.transpose('y', 'x', 'band').copy()
     ar.values = _image_histogram_equalization(ar.values)

@@ -4,7 +4,8 @@ import json
 
 
 class LUT(object):
-    """
+    """Lookup table for atmospheric simulation.
+
     Converts surface reflectance to at-sensor radiance values using
     lookup tables (generated separately).
     """
@@ -12,19 +13,15 @@ class LUT(object):
     def __init__(self, LUT_object=None, LUT_path=None, parameter_subsets=None,
                  chunks=None):
         """
-        Parameters
-        ----------
-        LUT_object : str, optional
-            An xarray lookup table which must have at least
-            wavelength and rho
-        LUT_path : str, optional
-            A path to an xarray lookup table which must have at least
-            wavelength and rho
-        parameter_subsets : str, optional
-            A dictionary specifying subsets of the xarray object. Refer to
-            xarray docs for more information
-        chunks : int or list, optional
-            chunking parameter passed to xarray.open_dataset
+        Args:
+            LUT_object: An xarray lookup table which must
+                have at least wavelength and rho.
+            LUT_path: A path to an xarray lookup table
+                which must have at least wavelength and rho.
+            parameter_subsets: A dictionary specifying
+                subsets of the xarray object. Refer to xarray docs for more
+                information.
+            chunks: integer chunking parameter passed to xarray.open_dataset
         """
 
         @reflectance_lookup

@@ -9,25 +9,17 @@ import xarray
 
 @spatial_response
 def gaussian_isotropic(signal, psf_fwhm, ground_sample_distance):
-    """
+    """Simulates a gaussian optic and sensor plane.
+
     Apply downsampling transform assuming a gaussian PSF and known PSF full
     width at half maximum.
 
-    Parameters
-    ----------
-    signal : xarray.DataArray
-        a 2D xarray raster with valid 'res' in attributes
+    Args:
+        signal: a 2D xarray raster with valid 'res' in attributes
+        psf_fwhm (float): Full width at half maximum of gaussian kernel.
+        ground_sample_distance (float): ground resolution of instrument
 
-    psf_fwhm : float
-        Full width at half maximum of gaussian kernel. Sentinel 2 10m has a
-        value of 22.08m
-
-    ground_sample_distance : float
-        ground resolution of instrument
-
-    Returns
-    -------
-    downsampled_array : xarray.DataArray
+    Returns:
         2D xarray raster array at new resolution
     """
     # @return_equal_xarray
