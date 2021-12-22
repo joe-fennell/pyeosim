@@ -5,7 +5,7 @@ import xarray
 import inspect
 
 
-def test_equivalent():
+def test_dask_equivalent():
     test_data = xarray.open_dataset(datasets.TEST_HSI)
     test_data_x = xarray.open_dataset(datasets.TEST_HSI, chunks=2)
     all_classes = _get_public_classes(spectral)

@@ -25,7 +25,7 @@ class CmosReflectance(GenericTransformer):
         """
         Parameters
         ----------
-        cmos_sensor : georis.sensor.TeledyneCMOS
+        cmos_sensor : TdiCMOS
             sensor instance
         reference_signal : xarray.DataArray
             100% reference signal
@@ -93,7 +93,7 @@ class CmosReflectance_ff(GenericTransformer):
         """
         Parameters
         ----------
-        cmos_sensor : georis.sensor.TeledyneCMOS
+        cmos_sensor : TdiCMOS
             sensor instance
         reference_signal : xarray.DataArray
             100% reference signal

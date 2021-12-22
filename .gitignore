@@ -1,3 +1,5 @@
+.DS_Store
+*.DS_Store
 *.nc
 !pyeosim/data/test_hyperspectral_vnir_large.nc
 !pyeosim/data/test_hyperspectral_vnir.nc
