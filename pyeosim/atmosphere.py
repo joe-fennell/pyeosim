@@ -1,6 +1,6 @@
-"""
-Module for atmospheric transformers. These can either work from a lookup table
-or using the GenericTransformer template
+"""Atmospheric Simulation
+
+This module contains atmospheric simulation transformer classes.
 """
 
 from ._atmosphere import LUT
@@ -12,43 +12,14 @@ import  Py6S
 import xarray
 
 
-class Test6S(LUT):
-    """
-    Test Look-up table for 6SV-style lookup tables
-    """
-
-    def __init__(self):
-        super().__init__(LUT_path=DATA_PATHS['TEST_LUT'])
-        # 6SV output is in W m-2 sr-1 micron-1 so convert to
-        # W m-2 sr-1 nanometer-1 by dividing by 1000
-        self.LUT = self.LUT / 1000
-        self.LUT.attrs = {
-            'latitude': 52.04,
-            'longitude': 0.76,
-            'datetimestring': '2020/06/22T12:00',
-            'view_z': 0,
-            'view_a': 0,
-            'water_vapour': 2.93,
-            'ozone': 0.319,
-            'AOT550': 0.5,
-            'visibility_km': 8.49
-        }
-
-
 class SixSV_atmosphere(object):
-    """
-    Generates an atmospheric transformer for a specific 6SV atmosphere
-
-    Methods
-    -------
-    fit(srf)
-        Takes a spectral response function and computes the lookup table
-    transform(signal)
-        Computes the per-band TOA radiance of a signal array
-    inverse_transform(signal)
-        Computes the per-band BOA reflectance of a signal array
+    """Generates an atmospheric transformer for a specific 6SV atmosphere
     """
     def __init__(self, SixS, srf=None):
+        """
+        Args:
+            SixS: A SixS atmosphere instance
+        """
         self.SixS = SixS
         self.srf = srf
         self._coefs = None
@@ -60,11 +31,10 @@ class SixSV_atmosphere(object):
             self.fit(srf)
 
     def fit(self, srf):
-        """
-        Parameters
-        ----------
-        srf : object
-            spectral response function object
+        """Runs 6SV and generates the lookup coefficients
+
+        Args:
+            srf: spectral response function object
         """
         def get_correction_coefs(fitted_6s):
             # Calculates the specific coefficients for this SixsV configuration and
@@ -115,13 +85,13 @@ class SixSV_atmosphere(object):
         self._coefs = xarray.Dataset({'a':a, 'b':b, 'filter_integral_micron':bw})
 
     def transform(self, signal):
-        """
-        Convert BOA reflectance to TOA radiance
+        """Convert BOA reflectance to per-band TOA radiance
 
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            Spectral reflectance dataset
+        Args:
+            signal: Spectral reflectance dataset with 'wavelength' dimension
+
+        Returns:
+            TOA radiance array with 'bands' spectral dimension
         """
         def reflectance_to_radiance(signal):
             # this returns the spectral radiance in W m-2 sr-1 micron-1
@@ -134,18 +104,13 @@ class SixSV_atmosphere(object):
         return reflectance_to_radiance(signal_sensor)
 
     def inverse_transform(self, signal):
-        """
-        Convert TOA radiance to BOA reflectance
+        """Convert TOA radiance to BOA reflectance
 
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            per band radiance dataset
+        Args:
+            signal: per band radiance dataset
 
-        Outputs
-        -------
-        reflectance : xarray.DataArray
-
+        Returns:
+            per band BOA reflectance dataset
         """
         def radiance_to_reflectance(signal):
             S_prime = self._coefs['filter_integral_micron']
@@ -154,10 +119,42 @@ class SixSV_atmosphere(object):
         return radiance_to_reflectance(signal)
 
 
-def LUT_from_file(fpath, common_params={}):
+class Test6S(LUT):
+    """Look-up table test for old-style lookup tables
     """
+
+    def __init__(self):
+        super().__init__(LUT_path=DATA_PATHS['TEST_LUT'])
+        # 6SV output is in W m-2 sr-1 micron-1 so convert to
+        # W m-2 sr-1 nanometer-1 by dividing by 1000
+        self.LUT = self.LUT / 1000
+        self.LUT.attrs = {
+            'latitude': 52.04,
+            'longitude': 0.76,
+            'datetimestring': '2020/06/22T12:00',
+            'view_z': 0,
+            'view_a': 0,
+            'water_vapour': 2.93,
+            'ozone': 0.319,
+            'AOT550': 0.5,
+            'visibility_km': 8.49
+        }
+
+
+def LUT_from_file(fpath, common_params={}):
+    """Generates LUT transformer from file.
+
     Takes a directory of directories (one per scenario)
-    Each file in the directory should be a CSV named with the rho (0...100)
+
+    Note:
+        Each file in the directory should be a CSV named with the rho (0...100)
+
+    Args:
+        fpath: filepath to a valid CSV response file
+        common_params (dict): attributes to add to DataArray
+
+    Returns:
+        LUT transformer instance
     """
     out = []
     for sim in os.listdir(fpath):

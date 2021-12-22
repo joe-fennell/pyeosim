@@ -4,9 +4,10 @@ import json
 
 
 class GenericTransformer(object):
-    """
-    A generic base class. Child subclasses should implement a '_set_steps'
-    method that assigns a list of tuples to the 'steps' attribute.
+    """A generic base class.
+
+    Child subclasses should implement a '_set_steps' method that assigns a list
+    of tuples to the 'steps' attribute.
     """
 
     def __init__(self):
@@ -16,30 +17,22 @@ class GenericTransformer(object):
         self._fitted = False  # flag to check if fixed pattern noise generated
 
     def fit(self, signal):
-        """
-        Sets all steps in the model
+        """Sets all steps in the model.
 
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            An xarray instance of measurements
+        Args:
+            signal: An xarray signal array
         """
         self._set_steps()
         self._fitted = True
 
     def transform(self, signal):
-        """
-        Applies all steps specificied in the 'steps' list
+        """Applies all steps specificied in the 'steps' list.
 
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            An xarray instance of measurements
+        Args:
+            signal: An xarray signal array
 
-        Returns
-        -------
-        new_signal : xarray.DataArray
-            transformed values
+        Returns:
+            new_signal: transformed values
         """
         try:
             signal = signal.transpose('y', 'x', ...)
@@ -51,19 +44,13 @@ class GenericTransformer(object):
             raise RuntimeError('Transformer Instance not fitted')
 
     def fit_transform(self, signal):
-        """
-        Calls 'fit' method then applies all steps specificied in the 'steps'
-        list
+        """Calls 'fit' then 'transform' method.
 
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            An xarray instance of measurements
+        Args:
+            signal: An xarray signal array
 
-        Returns
-        -------
-        new_signal : xarray.DataArray
-            transformed values
+        Returns:
+            new_signal: transformed values
         """
         self.fit(signal)
         return self.transform(signal)
@@ -75,18 +62,13 @@ class GenericTransformer(object):
         return [x[0] for x in self.steps]
 
     def get_params(self, numeric_only=False):
-        """
-        Returns the configuration params for the transfomer
+        """Returns the configuration params for the transfomer.
 
-        Parameters
-        ----------
-        numeric_only : bool, optional
-            flag returns only numeric type parameters
+        Args:
+            numeric_only (bool): if True returns only numeric type parameters
 
-        Returns
-        -------
-        parameters : dict
-            dictionary of parameter values keyed by name
+        Returns:
+            A dictionary of parameter values keyed by name
         """
         def only_numeric(params):
             def isnumeric(x):
@@ -107,15 +89,14 @@ class GenericTransformer(object):
         return params
 
     def apply_step(self, signal, step_name):
-        """
-        Apply a named step to a signal array
+        """Apply a named step to a signal array
 
-        Parameters
-        ----------
-        signal : xarray.DataArray
-            signal array
-        step_name : str
-            name of step to apply
+        Args:
+            signal: An xarray signal array
+            step_name: name of step to apply
+
+        Returns:
+            new_signal: transformed values
         """
         step = self.steps[step_name]
         return signal.pipe(step[1], **step[2])
@@ -141,20 +122,23 @@ class GenericTransformer(object):
         _signal.attrs = meta
         return _signal
 
-    def steps_to_latex(self, filename):
-        """
-        Transforms steps to a latex table.
+    def get_steps_as_latex(self, filepath=None):
+        """Transforms steps to a latex table.
 
-        Parameters
-        ----------
-        filename : str
-            path to write to
+        Args:
+            filepath (:obj:`str`, optional): destination to write latex file.
+
+        Returns:
+            Returns a LaTex string if filepath is not set
         """
+        out = ''
+
         def add_line(x):
             line = x+'\n'
             line = line.replace('_', '\_')
-            with open(filename, 'a') as f:
-                f.write(line)
+            out += line
+            # with open(filename, 'a') as f:
+            #     f.write(line)
 
         def fmt_obj(obj):
 
@@ -202,8 +186,6 @@ class GenericTransformer(object):
         def fmt_empty_step(val):
             return ' & & & ' + val + '\\\\'
 
-        if os.path.exists(filename):
-            os.remove(filename)
 
         # add all preamble
         add_line('\\begin{tabular}{llll}')
@@ -231,3 +213,10 @@ class GenericTransformer(object):
             c += 1
         add_line('\\bottomrule')
         add_line('\\end{tabular}')
+        if filepath is not None:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            with open(filename, 'a') as f:
+                f.write(out)
+        else:
+            return out

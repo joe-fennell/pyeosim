@@ -1,0 +1,30 @@
+{% set name = "pyeosim" %}
+{% set version = "0.1" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  git_url: https://github.com/joe-fennell/pyeosim
+  git_depth: 1
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+  run:
+    - python>=3.7
+    - xarray
+    - pyyaml
+    - scipy
+    - numpy
+    - dask
+    - py6s
+    - pandas
+    - xlrd

@@ -9,20 +9,16 @@ import pandas
 
 
 def names():
-    """
-    List all datasets
+    """List all datasets
     """
     return list(DATA_PATHS.keys())
 
 
 def dload(name):
-    """
-    Load dataset by name.
+    """Load dataset by name.
 
-    Parameters
-    ----------
-    name : str
-        dataset identifier
+    Args:
+        name (str): dataset identifier
     """
     if name in ['SRF_SENTINEL_2']:
         return _load_S2_spectra(DATA_PATHS[name])

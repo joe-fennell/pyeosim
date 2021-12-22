@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyeosim",  # Replace with your own username
-    version="0.0.2",
+    version="0.1",
     author="Joseph T. Fennell",
     author_email="info@joefennell.org",
     description="Python Earth Observation Simulator",
@@ -13,19 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/joe-fennell/pyeosim/",
     packages=setuptools.find_packages(),
-    package_dir={'georis': 'georis/'},
-    package_data={'georis': ['*.tif', '*.yaml', '*.shp', '*.shx', '*.cpg',
-                             '*.dbf', '*.prj', '*.yaml']},
     include_package_data=True,
-    install_requires=[
-          'xarray',
-          'pyyaml',
-          'scipy',
-          'numpy',
-          'dask',
-          'Click',
-          'py6s'
-      ],
     scripts=[],
     # entry_points='''
     #     [console_scripts]
