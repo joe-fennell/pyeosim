@@ -14,11 +14,19 @@ setuptools.setup(
     url="https://github.com/joe-fennell/pyeosim/",
     packages=setuptools.find_packages(),
     include_package_data=True,
+    install_requires=[
+        'xarray',
+        'pyyaml',
+        'scipy',
+        'numpy',
+        'dask',
+        'py6s',
+        'pandas',
+        'xlrd',
+        'netcdf4',
+        'matplotlib'
+    ]
     scripts=[],
-    # entry_points='''
-    #     [console_scripts]
-    #     georis=georis.cli:georis
-    # ''',
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -1,41 +1,52 @@
-# Python EO satellite simulation codes
-
-## Requirements
-- numpy
-- xarray
-- pandas
-
-For plotting:
-- matplotlib
-- seaborn
-
-For Py6S lookup table generation:
-- py6s
+# Python Earth Observation Simulation
+This software was developed for the TreeView project and is intended for the simulation of Earth Observation imagery data.
 
 ## Installation
-PIP installation not supported yet - run all code in the root of the repository
+Best option is to use conda:
+```
+git clone git@github.com:joe-fennell/pyeosim.git
+cd pyeosim
+conda-build .
+conda install --use-local
+```
 
-## TODO:
-- write tests for all _sensor functions
-- implement a scoring pipeline
-- full code review
+PIP install will work, but you should install Py6S first following the project's instructions
+```
+git clone git@github.com:joe-fennell/pyeosim.git
+pip install .
+```
 
-## Updates
-- Added a reflectance pipeline in new submodule postprocess
+## Getting Started
+```python
+from pyeosim.imager import TdiCmos
+from pyeosim.spectral import TreeView_3
+from pyeosim.atmosphere import SixSV_atmosphere
+from pyeosim.datasets import names, DATA_PATHS
+from Py6S import SixS
+import xarray
 
-## References:
-https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7878623
+# load, set wavelength as dim coords and rescale to [0..1]
+reflectance = xarray.load_dataarray(DATA_PATHS['TEST_HSI_LARGE'])
+reflectance = reflectance.swap_dims({'band':'wavelength'}) / 10000
 
-https://arxiv.org/pdf/1412.4031.pdf
+# generate a 6SV atmsophere
+atm = SixSV_atmosphere(SixS(), TreeView_3())
 
-http://isl.stanford.edu/~abbas/ee392b/lect01.pdf
+# Generate a default TDI CMOS sensor
+TreeView_satellite = TdiCmos()
 
-https://www.researchgate.net/publication/269292896_CMOS_image_sensor_Process_impact_on_dark_current#:~:text=Dark%20current%20is%20a%20major,dark%20current%20of%20the%20pixel
+# Perform simulation
+imager_output = TreeView_satellite.fit_transform(atm.transform(reflectance))
 
-https://imaging.teledyne-e2v.com/content/uploads/2019/01/QE-curve-3.jpg
-
-https://imaging.teledyne-e2v.com/content/uploads/2019/02/DSC_EV76C661.pdf
-
-https://www.teledyne-e2v.com/content/uploads/2018/09/Paper_High_Resolution_Charge_Domain_TDI-CMOS_Image_Sensor_for_Earth_Observation_SPIE_Remote_Sensing_2018.pdf
-
-https://www.researchgate.net/publication/228872206_Temperature_dependence_of_dark_current_in_a_CCD
+# plot outputs
+imager_output.plot(col='band', col_wrap=3, cmap='gray')
+```
+## API Reference
+| Submodules |
+| --- |
+[atmosphere](docs/pyeosim.atmosphere.md)
+[datasets](docs/pyeosim.datasets.md)
+[imager](docs/pyeosim.imager.md)
+[plot](docs/pyeosim.plot.md)
+[spatial](docs/pyeosim.spatial.md)
+[spectral](docs/pyeosim.spectral.md)

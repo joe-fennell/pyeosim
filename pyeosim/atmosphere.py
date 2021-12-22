@@ -83,6 +83,7 @@ class SixSV_atmosphere(object):
         b = xarray.DataArray(b, coords=[('band', np.arange(len(_srfs)))])
         bw = xarray.DataArray(bw, coords=[('band', np.arange(len(_srfs)))])
         self._coefs = xarray.Dataset({'a':a, 'b':b, 'filter_integral_micron':bw})
+        self._fitted = True
 
     def transform(self, signal):
         """Convert BOA reflectance to per-band TOA radiance

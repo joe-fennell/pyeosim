@@ -28,3 +28,5 @@ requirements:
     - py6s
     - pandas
     - xlrd
+    - netcdf4
+    - matplotlib
