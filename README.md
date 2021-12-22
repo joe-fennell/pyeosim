@@ -42,11 +42,11 @@ imager_output = TreeView_satellite.fit_transform(atm.transform(reflectance))
 imager_output.plot(col='band', col_wrap=3, cmap='gray')
 ```
 ## API Reference
-| Submodules |
-| --- |
-[atmosphere](docs/pyeosim.atmosphere.md)
-[datasets](docs/pyeosim.datasets.md)
-[imager](docs/pyeosim.imager.md)
-[plot](docs/pyeosim.plot.md)
-[spatial](docs/pyeosim.spatial.md)
-[spectral](docs/pyeosim.spectral.md)
+| Submodule | Purpose |
+| --- | --- |
+[atmosphere](docs/pyeosim.atmosphere.md) | Conversion of 6SV simulation outputs to lookup tables
+[datasets](docs/pyeosim.datasets.md) | Test and measured datasets
+[imager](docs/pyeosim.imager.md) | Imager simulation
+[plot](docs/pyeosim.plot.md) | plotting utilities
+[spatial](docs/pyeosim.spatial.md) | spatial response functions
+[spectral](docs/pyeosim.spectral.md) | spectral response functions
