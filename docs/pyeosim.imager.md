@@ -438,9 +438,61 @@ __init__(
 fit(signal)
 ```
 
+Precomputes the system constant states. 
+
+This precomputes states for system constants (e.g. the fixed- pattern noise). 
 
 
 
+**Args:**
+ 
+ - <b>`signal`</b>:  A Top-Of-Atmosphere radiance dataset integrated over the  bandpass response 
+
+---
+
+### <kbd>method</kbd> `fit_transform`
+
+```python
+fit_transform(signal)
+```
+
+Runs simulation on signal Top-Of-Atmosphere radiance dataset. 
+
+This both precomputes the system state constants (e.g. the fixed- pattern noise) and generates a temporary random state for other parameters (e.g. the dark signal). 
+
+
+
+**Args:**
+ 
+ - <b>`signal`</b>:  A Top-Of-Atmosphere radiance dataset integrated over the  bandpass response 
+
+
+
+**Returns:**
+ sensor digital number output 
+
+---
+
+### <kbd>method</kbd> `transform`
+
+```python
+transform(signal)
+```
+
+Runs simulation on signal Top-Of-Atmosphere radiance dataset. 
+
+This uses the precomputed states for system constants (e.g. the fixed- pattern noise) and generates a temporary random state for other parameters (e.g. the dark signal). 
+
+
+
+**Args:**
+ 
+ - <b>`signal`</b>:  A Top-Of-Atmosphere radiance dataset integrated over the  bandpass response 
+
+
+
+**Returns:**
+ sensor digital number output 
 
 ---
 

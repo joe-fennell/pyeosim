@@ -146,6 +146,16 @@ class TdiCmos(GenericTransformer):
         self._set_steps()
 
     def fit(self, signal):
+        """Precomputes the system constant states.
+
+        This precomputes states for system constants (e.g. the fixed-
+        pattern noise).
+
+        Args:
+            signal: A Top-Of-Atmosphere radiance dataset integrated over the
+                bandpass response
+
+        """
         # As this is a line scanner, only 1D fixed pattern noise is needed
         # however because each image pixel is integrated over multiple physical
         # pixels, the noise properties destructively add over the rows in each
@@ -176,6 +186,38 @@ class TdiCmos(GenericTransformer):
             self.column_offset_FPN = CONU(ones, self.offset_factor)
         self._set_steps()
         self._fitted = True
+
+    def transform(self, signal):
+        """Runs simulation on signal Top-Of-Atmosphere radiance dataset.
+
+        This uses the precomputed states for system constants (e.g. the fixed-
+        pattern noise) and generates a temporary random state for other
+        parameters (e.g. the dark signal).
+
+        Args:
+            signal: A Top-Of-Atmosphere radiance dataset integrated over the
+                bandpass response
+
+        Returns:
+            sensor digital number output
+        """
+        return super().transform(signal)
+
+    def fit_transform(self, signal):
+        """Runs simulation on signal Top-Of-Atmosphere radiance dataset.
+
+        This both precomputes the system state constants (e.g. the fixed-
+        pattern noise) and generates a temporary random state for other
+        parameters (e.g. the dark signal).
+
+        Args:
+            signal: A Top-Of-Atmosphere radiance dataset integrated over the
+                bandpass response
+
+        Returns:
+            sensor digital number output
+        """
+        return super().fit_transform(signal)
 
     def _make_ones(self, signal):
         # ones array of same shape as final signal
