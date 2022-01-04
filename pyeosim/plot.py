@@ -1,6 +1,5 @@
 """Plotting Utilities
 """
-
 import numpy as np
 
 
