@@ -1,19 +1,13 @@
 <!-- markdownlint-disable -->
 
-<a href="../pyeosim/atmosphere.py#L0"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 # <kbd>module</kbd> `pyeosim.atmosphere`
 Atmospheric Simulation 
-
-This module contains atmospheric simulation transformer classes. 
 
 **Global Variables**
 ---------------
 - **DATA_PATHS**
 
 ---
-
-<a href="../pyeosim/atmosphere.py#L144"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `LUT_from_file`
 
@@ -45,14 +39,10 @@ Takes a directory of directories (one per scenario)
 
 ---
 
-<a href="../pyeosim/atmosphere.py#L15"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>class</kbd> `SixSV_atmosphere`
 Generates an atmospheric transformer for a specific 6SV atmosphere  
 
 
-
-<a href="../pyeosim/atmosphere.py#L18"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `__init__`
 
@@ -71,8 +61,6 @@ __init__(SixS, srf=None)
 
 ---
 
-<a href="../pyeosim/atmosphere.py#L33"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ### <kbd>method</kbd> `fit`
 
 ```python
@@ -88,8 +76,6 @@ Runs 6SV and generates the lookup coefficients
  - <b>`srf`</b>:  spectral response function object 
 
 ---
-
-<a href="../pyeosim/atmosphere.py#L106"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `inverse_transform`
 
@@ -111,8 +97,6 @@ Convert TOA radiance to BOA reflectance
  per band BOA reflectance dataset 
 
 ---
-
-<a href="../pyeosim/atmosphere.py#L87"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `transform`
 
@@ -136,14 +120,10 @@ Convert BOA reflectance to per-band TOA radiance
 
 ---
 
-<a href="../pyeosim/atmosphere.py#L122"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>class</kbd> `Test6S`
 Look-up table test for old-style lookup tables  
 
 
-
-<a href="../pyeosim/atmosphere.py#L126"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `__init__`
 

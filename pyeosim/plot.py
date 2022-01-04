@@ -1,5 +1,4 @@
-"""
-Plotting utilities
+"""Plotting Utilities
 """
 
 import numpy as np

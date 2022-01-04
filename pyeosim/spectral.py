@@ -1,8 +1,7 @@
-"""
-Sentinel 2 simulation tools
+"""Multispectral Spectral Responses and Generators
 """
 from ._spectral import _SRF, bands_from_step_func, band_QE
-from .datasets import dload
+from .datasets import _dload
 
 
 class Sentinel2A(_SRF):
@@ -16,7 +15,7 @@ class Sentinel2A(_SRF):
     """
 
     def _load_srfs(self):
-        spx = dload('SRF_SENTINEL_2')
+        spx = _dload('SRF_SENTINEL_2')
         self.band_wavelengths = {
             'B2': 492.,
             'B3': 560.,
@@ -38,7 +37,7 @@ class Sentinel2B(_SRF):
     """
 
     def _load_srfs(self):
-        spx = dload('SRF_SENTINEL_2')
+        spx = _dload('SRF_SENTINEL_2')
         self.band_wavelengths = {
             'B2': 492.,
             'B3': 560.,
@@ -61,7 +60,7 @@ class Sentinel2VNIR(_SRF):
     """
 
     def _load_srfs(self):
-        spx = dload('SRF_SENTINEL_2')
+        spx = _dload('SRF_SENTINEL_2')
         vals = spx['S2A']
         # drop SWIR
         vals.pop('B11')
@@ -87,7 +86,7 @@ class SuperDove(_SRF):
     """
 
     def _load_srfs(self):
-        vals = dload('SRF_SUPERDOVE')
+        vals = _dload('SRF_SUPERDOVE')
         self.band_wavelengths = {
             'CoastalBlue': 443.,
             'Blue': 490.,

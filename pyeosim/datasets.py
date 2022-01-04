@@ -1,5 +1,30 @@
-"""
+"""Dataset Management
+
 Datasets and data load funcs used in testing and specific supported sensors
+
+The DATA_PATHS dictionary currently contains the following filepaths:
+
+Attributes:
+    TEST_HSI: A Vis-VNIR NetCDF4 hyperspectral dataset of 186 spectral bands
+        and 36 pixels (186x6x6).
+    TEST_HSI_LARGE: A Vis-VNIR NetCDF4 hyperspectral dataset of 186 spectral
+        bands and 131,042 pixels (186x362x362).
+    SRF_SENTINEL_2: per-band Spectral Response Function for the Sentinel 2A and
+        2B satellites.
+    SRF_SUPERDOVE: per-band Spectral Response Function for the Planet SuperDove
+        satellites.
+    SOLAR_SPECTRUM_ASTMG173: Mean solar surface irradiance spectrum (global).
+        Wavelength in nm and irradiance in W m-2 nm-1.
+    SOLAR_SPECTRUM_ASTME490: Mean solar extraterrestrial irradiance spectrum
+        (global). Wavelength in nm and irradiance in W m-2 nm-1.
+    CCD_QE_DD_BACK: Published Teledyne sensor Quantum Efficiency for a Dump
+        Drain back-thinned sensor.
+    CCD_QE_STD_BACK: Published Teledyne sensor Quantum Efficiency for a
+        standard back-thinned sensor.
+    TDI_QE_BACK: Approximate Quantum Efficiency for a TDI back-
+        thinned sensor.
+    TEST_LUT: A Top-Of-Atmosphere radiance lookup table for reflectances
+        at wavelengths between 400 and 900nm.
 """
 import numpy as np
 import os
@@ -14,7 +39,7 @@ def names():
     return list(DATA_PATHS.keys())
 
 
-def dload(name):
+def _dload(name):
     """Load dataset by name.
 
     Args:
@@ -82,21 +107,27 @@ def _load_superdove(fpath):
 
 
 # paths for all data resources installed alongside
-HERE = os.path.abspath(os.path.dirname(__file__))
+_HERE = os.path.abspath(os.path.dirname(__file__))
 DATA_PATHS = {
-    'TEST_HSI': os.path.abspath(pjoin(HERE, 'data',
+    'TEST_HSI': os.path.abspath(pjoin(_HERE, 'data',
                                       'test_hyperspectral_vnir.nc')),
-    'TEST_HSI_LARGE': os.path.abspath(pjoin(HERE, 'data',
+    'TEST_HSI_LARGE': os.path.abspath(pjoin(_HERE, 'data',
                                       'test_hyperspectral_vnir_large.nc')),
-    'SRF_SENTINEL_2': pjoin(HERE, 'data',
+    'SRF_SENTINEL_2': pjoin(_HERE, 'data',
                             'srf_sentinel_2.csv'),
-    'SOLAR_SPECTRUM_ASTMG173': pjoin(HERE, 'data',
+    'SOLAR_SPECTRUM_ASTMG173': pjoin(_HERE, 'data',
                                      'solar_spectrum_ASTMG173.csv'),
-    'CCD_QE_DD_BACK': pjoin(HERE, 'data',
+    'SOLAR_SPECTRUM_ASTME490': pjoin(_HERE, 'data',
+                                     'solar_spectrum_ASTME490.csv'),
+    'CCD_QE_DD_BACK': pjoin(_HERE, 'data',
                             'ccd_qe_dd_back.csv'),
-    'CCD_QE_STD_BACK': pjoin(HERE, 'data',
+    'CCD_QE_STD_BACK': pjoin(_HERE, 'data',
                              'ccd_qe_std_back.csv'),
-    'TEST_LUT': pjoin(HERE, 'data', 'test_6s.LUT'),
-    'TDI_QE_BACK': pjoin(HERE, 'data', 'teledyne_cmos_qe_back.csv'),
-    'SRF_SUPERDOVE': pjoin(HERE, 'data', 'srf_superdove.csv')
+    'TEST_LUT': pjoin(_HERE, 'data', 'test_6s.LUT'),
+    'TDI_QE_BACK': pjoin(_HERE, 'data', 'teledyne_cmos_qe_back.csv'),
+    'SRF_SUPERDOVE': pjoin(_HERE, 'data', 'srf_superdove.csv')
     }
+
+B = 123
+"""A dictionary
+"""

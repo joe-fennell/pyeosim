@@ -1,6 +1,4 @@
 """Atmospheric Simulation
-
-This module contains atmospheric simulation transformer classes.
 """
 
 from ._atmosphere import LUT

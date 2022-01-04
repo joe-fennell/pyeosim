@@ -1,5 +1,4 @@
-"""
-Spatial response functions
+"""Spatial Response Generators
 """
 from ._decorators import spatial_response
 from scipy import ndimage

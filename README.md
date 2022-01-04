@@ -2,16 +2,8 @@
 This software was developed for the TreeView project and is intended for the simulation of Earth Observation imagery data.
 
 ## Installation
-Best option is to use conda:
-```
-git clone git@github.com:joe-fennell/pyeosim.git
-cd pyeosim
-conda-build .
-conda install --use-local
-```
-
 PIP install will work, but you should install Py6S first following the project's instructions
-```
+```bash
 git clone git@github.com:joe-fennell/pyeosim.git
 pip install .
 ```
@@ -42,11 +34,5 @@ imager_output = TreeView_satellite.fit_transform(atm.transform(reflectance))
 imager_output.plot(col='band', col_wrap=3, cmap='gray')
 ```
 ## API Reference
-| Submodule | Purpose |
-| --- | --- |
-[atmosphere](docs/pyeosim.atmosphere.md) | Conversion of 6SV simulation outputs to lookup tables
-[datasets](docs/pyeosim.datasets.md) | Test and measured datasets
-[imager](docs/pyeosim.imager.md) | Imager simulation
-[plot](docs/pyeosim.plot.md) | plotting utilities
-[spatial](docs/pyeosim.spatial.md) | spatial response functions
-[spectral](docs/pyeosim.spectral.md) | spectral response functions
+
+Full API Docs can be found [here](docs/API.md)

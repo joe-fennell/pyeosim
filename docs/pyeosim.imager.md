@@ -1,16 +1,10 @@
 <!-- markdownlint-disable -->
 
-<a href="../pyeosim/imager.py#L0"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 # <kbd>module</kbd> `pyeosim.imager`
-
-
-
+Imager and System Simulation 
 
 
 ---
-
-<a href="../pyeosim/imager.py#L15"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `add_column_offset`
 
@@ -34,8 +28,6 @@ Adds the column offset noise to voltage array.
 
 
 ---
-
-<a href="../pyeosim/imager.py#L28"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `add_dark_signal`
 
@@ -62,8 +54,6 @@ Adds dark current to electron count.
 
 ---
 
-<a href="../pyeosim/imager.py#L51"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `add_gaussian_noise`
 
 ```python
@@ -86,8 +76,6 @@ Adds a zero-mean gaussian to electron count
 
 
 ---
-
-<a href="../pyeosim/imager.py#L66"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `add_photon_noise`
 
@@ -113,8 +101,6 @@ Assumes signal is a Poisson random process.
 
 ---
 
-<a href="../pyeosim/imager.py#L84"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `add_prnu`
 
 ```python
@@ -138,8 +124,6 @@ Adds Photon Response Non-Uniformity to electrons.
 
 ---
 
-<a href="../pyeosim/imager.py#L98"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `CONU`
 
 ```python
@@ -162,8 +146,6 @@ Generates column offset non uniformity array
 
 
 ---
-
-<a href="../pyeosim/imager.py#L119"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `DSNU`
 
@@ -196,8 +178,6 @@ This assumes a log-Normal distribution suitable for short integration times of l
 
 
 ---
-
-<a href="../pyeosim/imager.py#L144"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `electron_to_voltage`
 
@@ -233,8 +213,6 @@ Converts electrons (charge) to voltage by simulating a sense node with a fixed v
 
 ---
 
-<a href="../pyeosim/imager.py#L168"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `energy_to_quantity`
 
 ```python
@@ -256,8 +234,6 @@ Convert energy to quanta.
 
 
 ---
-
-<a href="../pyeosim/imager.py#L182"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `photon_mean`
 
@@ -283,8 +259,6 @@ Convert sensor photon flux density to photon count at sensor.
 
 ---
 
-<a href="../pyeosim/imager.py#L196"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `photon_to_electron`
 
 ```python
@@ -308,8 +282,6 @@ Convert photon count to electron count using sensor quantum efficiency.
 
 ---
 
-<a href="../pyeosim/imager.py#L211"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `PRNU`
 
 ```python
@@ -332,8 +304,6 @@ Generates the Photo Response Non-Uniformity.
 
 
 ---
-
-<a href="../pyeosim/imager.py#L224"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>function</kbd> `radiance_to_irradiance_2`
 
@@ -364,8 +334,6 @@ Convert radiance (W m-2 sr-1) to irradiance of sensor based on lens.
 
 ---
 
-<a href="../pyeosim/imager.py#L243"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>function</kbd> `voltage_to_DN`
 
 ```python
@@ -392,8 +360,6 @@ Model a linear response ADC.
 
 ---
 
-<a href="../pyeosim/imager.py#L280"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ## <kbd>class</kbd> `TdiCmos`
 Time Delay Integration CMOS generic transformer. 
 
@@ -402,8 +368,6 @@ Time Delay Integration CMOS generic transformer.
 **Note:**
 
 > This version does not apply spectral resampling and relies on band integration happening in the atmospheric simulation 
-
-<a href="../pyeosim/imager.py#L288"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `__init__`
 
@@ -468,8 +432,6 @@ __init__(
 
 ---
 
-<a href="../pyeosim/imager.py#L412"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ### <kbd>method</kbd> `fit`
 
 ```python
@@ -482,13 +444,13 @@ fit(signal)
 
 ---
 
-<a href="../pyeosim/imager.py#L373"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
 ### <kbd>method</kbd> `update_derived_params`
 
 ```python
 update_derived_params()
 ```
+
+Re-run all derived parameter calculations. 
 
 Call after updating any parameter values to recalculate derived params 
 
