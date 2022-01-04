@@ -3,9 +3,6 @@
 # <kbd>module</kbd> `pyeosim.atmosphere`
 Atmospheric Simulation 
 
-**Global Variables**
----------------
-- **DATA_PATHS**
 
 ---
 
