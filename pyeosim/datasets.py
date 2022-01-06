@@ -127,7 +127,3 @@ DATA_PATHS = {
     'TDI_QE_BACK': pjoin(_HERE, 'data', 'teledyne_cmos_qe_back.csv'),
     'SRF_SUPERDOVE': pjoin(_HERE, 'data', 'srf_superdove.csv')
     }
-
-B = 123
-"""A dictionary
-"""

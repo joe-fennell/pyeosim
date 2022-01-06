@@ -25,7 +25,6 @@ The DATA_PATHS dictionary currently contains the following filepaths:
 **Global Variables**
 ---------------
 - **DATA_PATHS**
-- **B**
 
 ---
 
