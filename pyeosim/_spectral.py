@@ -107,10 +107,13 @@ class _SRF(object):
         def convert_srf(srf):
             def interp(min_wlen, max_wlen):
                 # interpolate wavelengths
-                return np.arange(min_wlen, max_wlen+ 2.5, 2.5)
+                n_required = round((max_wlen - min_wlen) / 2.5) + 1
+                # round to nm
+                return np.linspace(min_wlen, max_wlen, n_required).round(6)
             _min, _max = _min_max(srf)
             wlen = interp(_min, _max)
-            return _min/1000, _max/1000, list(srf.interp(wavelength=wlen).values)
+            return _min/1000, _max/1000, list(
+                srf.interp(wavelength=wlen).values.round(6))
 
         out = {}
         for name, srf in self.srfs.items():
@@ -182,7 +185,7 @@ def band_QE(SRFs, quantum_efficiency):
     return xarray.DataArray(QEs, [('band', bands)])
 
 
-def _min_max(resp, tolerance=.05):
+def _min_max(resp, tolerance=.01):
     # max of spectrum
     max_ = (resp.wavelength[resp > tolerance]).max()
     # min of spectrum

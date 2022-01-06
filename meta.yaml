@@ -6,8 +6,7 @@ package:
   version: "{{ version }}"
 
 source:
-  git_url: https://github.com/joe-fennell/pyeosim
-  git_depth: 1
+  path: .
 
 build:
   number: 0

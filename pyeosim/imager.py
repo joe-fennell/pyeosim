@@ -521,7 +521,7 @@ def voltage_to_DN(voltage, v_ref, bit_depth):
     Returns:
         Digital Number array
     """
-    max_DN = numpy.int(2**bit_depth - 1)
+    max_DN = int(2**bit_depth - 1)
     # DN = max_DN * (v_ref - voltage)
     DN = max_DN * (voltage / v_ref)
     # DN = (voltage * (2**bit_depth))/v_ref
