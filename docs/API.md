@@ -9,6 +9,7 @@
 - [`pyeosim.datasets`](./pyeosim.datasets.md#module-pyeosimdatasets): Dataset Management
 - [`pyeosim.imager`](./pyeosim.imager.md#module-pyeosimimager): Imager and System Simulation
 - [`pyeosim.plot`](./pyeosim.plot.md#module-pyeosimplot): Plotting Utilities
+- [`pyeosim.post`](./pyeosim.post.md#module-pyeosimpost): Additional post processing tools for image data
 - [`pyeosim.spatial`](./pyeosim.spatial.md#module-pyeosimspatial): Spatial Response Generators
 - [`pyeosim.spectral`](./pyeosim.spectral.md#module-pyeosimspectral): Multispectral Spectral Responses and Generators
 
@@ -17,6 +18,7 @@
 - [`atmosphere.SixSV_atmosphere`](./pyeosim.atmosphere.md#class-sixsv_atmosphere): Generates an atmospheric transformer for a specific 6SV atmosphere
 - [`atmosphere.Test6S`](./pyeosim.atmosphere.md#class-test6s): Look-up table test for old-style lookup tables
 - [`imager.TdiCmos`](./pyeosim.imager.md#class-tdicmos): Time Delay Integration CMOS generic transformer.
+- [`post.LinearRadiometricCorrection`](./pyeosim.post.md#class-linearradiometriccorrection): Linear radiometric correction using precomputed coefficients
 - [`spectral.Sentinel2A`](./pyeosim.spectral.md#class-sentinel2a): Sentinel 2A - all spectral bands.
 - [`spectral.Sentinel2B`](./pyeosim.spectral.md#class-sentinel2b): Sentinel 2B - all bands.
 - [`spectral.Sentinel2VNIR`](./pyeosim.spectral.md#class-sentinel2vnir): Sentinel 2A - vis-VNIR only.
@@ -44,6 +46,8 @@
 - [`imager.radiance_to_irradiance_2`](./pyeosim.imager.md#function-radiance_to_irradiance_2): Convert radiance (W m-2 sr-1) to irradiance of sensor based on lens.
 - [`imager.voltage_to_DN`](./pyeosim.imager.md#function-voltage_to_dn): Convert voltage to Digital Number via a linear ADC.
 - [`plot.rgb`](./pyeosim.plot.md#function-rgb): Make an RGB image from a 3 channel array.
+- [`post.apply_downsampling`](./pyeosim.post.md#function-apply_downsampling): Apply only the spectral and spatial downsampling steps
+- [`post.sensor_correction_experiment`](./pyeosim.post.md#function-sensor_correction_experiment): Performs a calibration experiment based on an input radiance dataset
 - [`spatial.gaussian_isotropic`](./pyeosim.spatial.md#function-gaussian_isotropic): Simulates a gaussian optic and sensor plane.
 
 
